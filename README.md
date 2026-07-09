@@ -7,13 +7,16 @@ This project was extracted from a WinForms application and refactored into a reu
 
 ## Overview
 
-`mLogger` provides a simple logging API for writing structured log messages with different severity levels. It is designed to be minimal, fast, and easy to integrate.
+`mLogger` provides a simple logging API for writing structured log messages with different severity levels, to multiple log sinks. It is designed to be minimal, fast, and easy to integrate.
 
 The library supports:
 
 - Log levels (e.g., DEBUG, INFO, WARN, ERROR, FATAL)
 - Thread-safe logging
-- File-based output
+- Built in sinks
+    - Text file
+    - Console output
+    - Entries Stored in RAM
 - Simple singleton-style access pattern
 
 
@@ -84,7 +87,6 @@ Future Improvements
 ### Planned enhancements:
 
 Async logging pipeline
-JSON structured log output
 Configurable output targets (console, file, network)
 Dependency injection support
 
