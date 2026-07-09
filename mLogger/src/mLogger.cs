@@ -154,16 +154,24 @@ namespace mLogger
 
     public class InMemorySink : ILogSink
     {
+        private readonly object _lock = new();
+
         private readonly List<string> _inMemoryLogs = new();
         public IReadOnlyList<string> Logs => _inMemoryLogs;
 
         public void Write(LogEntry entry)
         {
-            _inMemoryLogs.Add(LogFormatter.FormatOneLineText(entry));
+            lock (_lock)
+            {
+                _inMemoryLogs.Add(LogFormatter.FormatOneLineText(entry));
+            }
         }
         public void ResetForTesting()
         {
-            _inMemoryLogs.Clear();
+            lock (_lock)
+            {
+                _inMemoryLogs.Clear();
+            }
         }
         public void Shutdown()
         {   }
