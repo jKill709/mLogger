@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../mLogger_UnitTests/mLogger_UnitTests.csproj" />
+  <Project Path="mLogger.csproj" />
+</Solution>
