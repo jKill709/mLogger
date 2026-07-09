@@ -81,6 +81,10 @@ namespace mLogger
             _currentDate = "0000-00-00";
             NewLogFileIfNeeded();
         }
+        ~TextFileSink() 
+        {
+            Shutdown();
+        }
         public void Write(LogEntry entry)
         {
             lock (_lock)
@@ -193,24 +197,6 @@ namespace mLogger
             _sinks.Add(sink);
         }
 
-        private string FormatEntry(LogLevel level, string source, string message)
-        {
-            if (message == null) 
-                message = "null";
-            
-            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-            string levelName = level switch
-            {
-                LogLevel.DEBUG => "DBG",
-                LogLevel.INFO => "INF",
-                LogLevel.WARN => "WRN",
-                LogLevel.ERROR => "ERR",
-                LogLevel.FATAL => "FTL",
-                _ => "UNK"
-            };
-            return $"[{timestamp}] [{levelName}] [{source}] {message}";
-        }
-
         public void Log(LogLevel level, string source, string message)
         {
             if (!_isInitialized)
@@ -241,12 +227,14 @@ namespace mLogger
             {
                 sink.ResetForTesting();
             }
+            _sinks.Clear();
         }
 
         public void Shutdown()
         {
             foreach (var sink in _sinks)
                 sink.Shutdown();
+            _sinks.Clear();
         }
     }
 
