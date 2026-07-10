@@ -17,6 +17,8 @@ The library supports:
     - Text file
     - Console output
     - Entries Stored in RAM
+- Additional Sinks available mLogger_WinForms
+    - TextBox
 - Simple singleton-style access pattern
 
 
@@ -27,14 +29,28 @@ mLogger/
 │
 ├── mLogger/ # Class library project
 │ ├── src/
-│ │ └── mLogger.cs # Logger implementation
+│ │ ├── mLogger.cs # Logger implementation
+│ │ └── Sinks.cs # Sinks interface and implementations
 │ ├── mLogger.csproj
 │ └── mLogger.slnx
 │
-└── mLogger_UnitTests/ # Unit test project
+├── mLogger_UnitTests/ # Unit test project
 ├── src/
-│ └── LoggerTests.cs
-└── mLogger_UnitTests.csproj
+│ ├── InMemorySinkTests.cs
+│ ├── LoggerTests.cs
+│ └── TextFileSinkTests.cs
+├── mLogger_UnitTests.csproj
+│
+├── mLogger_WinForms/ # WinForms Class library project
+│ ├── src/
+│ │ └── Sinks_WinForms.cs # Logger implementation
+│ └── mLogger_WinForms.csproj
+│
+├── mLogger_WinForms_UnitTests/ # Unit test project
+├── src/
+│ └── TextBoxSinkTests.cs
+├── mLogger_WinForms_UnitTests.csproj
+└── MSTestSettings.cs
 ```
 
 
@@ -43,9 +59,11 @@ mLogger/
 ### Basic Example
 
 ```csharp
-TextFileSink sink = new ("C:/Logs/", "MyApp")
+TextFileSink textSink = new ("C:/Logs/", "MyApp");
+MemorySink memSink = new ();
 Logger.Instance.Initialize("MyApp");
-Logger.AddSink(textFileSink)
+Logger.AddSink(textSink);
+Logger.AddSink(memSink);
 
 Logger.Instance.Info("Startup", "Application started successfully.");
 Logger.Instance.Warn("Config", "Using default configuration.");
