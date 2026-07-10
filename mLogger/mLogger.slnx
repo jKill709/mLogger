@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="../mLogger_UnitTests/mLogger_UnitTests.csproj" />
   <Project Path="../mLogger_WinForms/mLogger_WinForms.csproj" Id="251bf6c5-27a5-4c8d-aa46-2c21ee0059ac" />
+  <Project Path="../mLogger_Winforms_UnitTests/mLogger_Winforms_UnitTests.csproj" Id="27c39932-eb8a-4ed9-895c-8b0739561748" />
   <Project Path="mLogger.csproj" />
 </Solution>
