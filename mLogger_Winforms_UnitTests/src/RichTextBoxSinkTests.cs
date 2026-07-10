@@ -9,26 +9,26 @@ namespace mLogger_Winforms_UnitTests
     public sealed class mLogger_Winforms_UnitTests
     {
         [TestMethod]
-        public void Constructor_StoresTextBox()
+        public void Constructor_StoresRichTextBox()
         {
-            var tb = new TextBox();
+            var tb = new RichTextBox();
 
-            var sink = new TextBoxSink(tb);
+            var sink = new RichTextBoxSink(tb);
 
             Assert.IsNotNull(sink);
         }
 
         [TestMethod]
-        public void Constructor_ThrowsArgumentNullException_WhenTextBoxIsNull()
+        public void Constructor_ThrowsArgumentNullException_WhenRichTextBoxIsNull()
         {
-            Assert.ThrowsExactly<ArgumentNullException>(() => new TextBoxSink(null));
+            Assert.ThrowsExactly<ArgumentNullException>(() => new RichTextBoxSink(null));
         }
 
         [TestMethod]
         public void Write_AppendsOneLine()
         {
-            TextBox tb = new TextBox();
-            TextBoxSink sink = new TextBoxSink(tb);
+            RichTextBox tb = new RichTextBox();
+            RichTextBoxSink sink = new RichTextBoxSink(tb);
             LogEntry entry = new LogEntry { Timestamp = DateTime.Now,
                                             Level = LogLevel.DEBUG,
                                             Source = "Unit Tests",
@@ -42,8 +42,8 @@ namespace mLogger_Winforms_UnitTests
         [TestMethod]
         public void Write_AppendsSource()
         {
-            TextBox tb = new TextBox();
-            TextBoxSink sink = new TextBoxSink(tb);
+            RichTextBox tb = new RichTextBox();
+            RichTextBoxSink sink = new RichTextBoxSink(tb);
             LogEntry entry = new LogEntry
             {
                 Timestamp = DateTime.Now,
@@ -61,8 +61,8 @@ namespace mLogger_Winforms_UnitTests
         [TestMethod]
         public void Write_AppendsMessage()
         {
-            TextBox tb = new TextBox();
-            TextBoxSink sink = new TextBoxSink(tb);
+            RichTextBox tb = new RichTextBox();
+            RichTextBoxSink sink = new RichTextBoxSink(tb);
             LogEntry entry = new LogEntry
             {
                 Timestamp = DateTime.Now,
@@ -80,8 +80,8 @@ namespace mLogger_Winforms_UnitTests
         [TestMethod]
         public void Write_AppendsMultipleLines()
         {
-            TextBox tb = new TextBox();
-            TextBoxSink sink = new TextBoxSink(tb);
+            RichTextBox tb = new RichTextBox();
+            RichTextBoxSink sink = new RichTextBoxSink(tb);
             LogEntry entry1 = new LogEntry
             {
                 Timestamp = DateTime.Now,
@@ -116,8 +116,8 @@ namespace mLogger_Winforms_UnitTests
         [TestMethod]
         public void ResetForTesting_ClearsText()
         {
-            TextBox tb = new TextBox();
-            TextBoxSink sink = new TextBoxSink(tb);
+            RichTextBox tb = new RichTextBox();
+            RichTextBoxSink sink = new RichTextBoxSink(tb);
             LogEntry entry = new LogEntry
             {
                 Timestamp = DateTime.Now,

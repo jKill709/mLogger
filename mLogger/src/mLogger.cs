@@ -28,7 +28,7 @@ namespace mLogger
 
         public string Message { get; init; } = "";
     }
-    internal static class LogFormatter
+    public static class LogFormatter
     {
         public static string FormatOneLineText(LogEntry entry)
         {
