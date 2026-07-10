@@ -59,26 +59,22 @@ namespace mLogger
     {
         private readonly object _lock = new();
 
+        private string _appName;
+        private string _fileExtention;
         private string _fileName;
         private string _fileDirectory;
         private StreamWriter _writer;
-        private string _currentDate;
+        private string _currentDate = "0000-00-00";
 
-        public TextFileSink(string filePath)
+        public TextFileSink(string fileDirectory, string appName, string fileExtension = ".txt")
         {
-            if (filePath == null)
-                throw new ArgumentNullException(nameof(filePath));
+            ArgumentNullException.ThrowIfNull(fileDirectory);
+            ArgumentNullException.ThrowIfNull(appName);
+            ArgumentNullException.ThrowIfNull(fileExtension);
 
-            _fileDirectory = Path.GetDirectoryName(filePath);
-            _fileName = Path.GetFileName(filePath);
-
-            if (_fileDirectory == null)
-                throw new ArgumentException("Invalid file directory.", nameof(filePath));
-            if (_fileName == null)
-                throw new ArgumentException("Invalid file name.", nameof(filePath));
-
-            _writer = new StreamWriter(filePath, true, Encoding.UTF8);
-            _currentDate = "0000-00-00";
+            _fileDirectory = fileDirectory;
+            _appName = appName;
+            _fileExtention = fileExtension;
             NewLogFileIfNeeded();
         }
         ~TextFileSink() 
@@ -96,22 +92,23 @@ namespace mLogger
         }
         public void ResetForTesting()
         {
-            // Close the current file.
-            _writer?.Dispose();
-
-            string filePath = Path.Combine(_fileDirectory, _fileName);
-
-            // Delete the existing log file if it exists.
-            if (File.Exists(filePath))
+            lock (_lock)
             {
-                File.Delete(filePath);
+                // Close the current file.
+                _writer?.Dispose();
+
+                string filePath = Path.Combine(_fileDirectory, _fileName);
+
+                // Delete the existing log file if it exists.
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+
+                // Resest fileName and _writer state
+                _currentDate = "0000-00-00";
+                NewLogFileIfNeeded();
             }
-
-            // Recreate an empty log file.
-            _writer = new StreamWriter(filePath, false, Encoding.UTF8);
-
-            // Force CurrentLogFileName() to recognize the current file as already open.
-            _currentDate = DateTime.Now.ToString("yyyy-MM-dd");
         }
         public void Shutdown()
         {
@@ -124,14 +121,21 @@ namespace mLogger
         private string NewLogFileIfNeeded()
         {
             // If the date has changed since the last write, close the old file and open a new one
-            string today = DateTime.Now.ToString("yyyy-MM-dd");
-            if (today != _currentDate)
+
+            lock (_lock)
             {
-                _writer?.Dispose();
-                _currentDate = today;
-                _writer = new StreamWriter(Path.Combine(_fileDirectory, _fileName), true, Encoding.UTF8);
+                string today = DateTime.Now.ToString("yyyy-MM-dd");
+
+                if (today != _currentDate)
+                {
+                    _writer?.Dispose();
+                    _currentDate = today;
+                    _fileName = _appName + "_" + today + _fileExtention;
+                    _writer = new StreamWriter(Path.Combine(_fileDirectory, _fileName), true, Encoding.UTF8);
+                }
+                
+                return _currentDate;
             }
-            return _currentDate;
         }
     }
     
@@ -199,9 +203,7 @@ namespace mLogger
 
         public void AddSink(ILogSink sink)
         {
-            if (sink == null)
-                throw new ArgumentNullException(nameof(sink));
-
+            ArgumentNullException.ThrowIfNull(sink);
             _sinks.Add(sink);
         }
 
