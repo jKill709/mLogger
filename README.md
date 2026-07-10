@@ -43,10 +43,9 @@ mLogger/
 ### Basic Example
 
 ```csharp
-Logger.Instance.Initialize(
-    "MyApp",
-    @"C:\Logs\MyApp"
-);
+TextFileSink sink = new ("C:/Logs/", "MyApp")
+Logger.Instance.Initialize("MyApp");
+Logger.AddSink(textFileSink)
 
 Logger.Instance.Info("Startup", "Application started successfully.");
 Logger.Instance.Warn("Config", "Using default configuration.");
@@ -83,14 +82,6 @@ No reliance on application UI context
 Clean separation of concerns
 Reusability across different application types
 Future Improvements
-
-### Planned enhancements:
-
-Async logging pipeline
-Configurable output targets (console, file, network)
-Dependency injection support
-
-This project is provided as-is for portfolio and educational use.
 
 ## License
 

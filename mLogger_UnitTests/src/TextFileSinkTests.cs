@@ -3,25 +3,26 @@ using Xunit;
 
 public class TextFileSinkTests
 {
-    private string CreateTempFile()
+    private (string Directory, string BaseFileName, string ExpectedFilePath) CreateTempFile()
     {
-        string dir =
-            Path.Combine(
-                Path.GetTempPath(),
-                Guid.NewGuid().ToString());
+        string directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
-        Directory.CreateDirectory(dir);
+        Directory.CreateDirectory(directory);
 
-        return Path.Combine(dir, "test.log");
+        string baseFileName = "test";
+        string today = DateTime.Now.ToString("yyyy-MM-dd");
+
+        string expectedFilePath = Path.Combine(directory, $"{baseFileName}_{today}.txt");
+
+        return (directory, baseFileName, expectedFilePath);
     }
-
 
     [Fact]
     public void Write_ShouldCreateFile()
     {
-        string file = CreateTempFile();
+        var file = CreateTempFile();
 
-        var sink = new TextFileSink(file);
+        var sink = new TextFileSink(file.Directory, file.BaseFileName);
 
         sink.Write(new LogEntry
         {
@@ -33,16 +34,16 @@ public class TextFileSinkTests
 
         sink.Shutdown();
 
-        Assert.True(File.Exists(file));
+        Assert.True(File.Exists(file.ExpectedFilePath));
     }
 
 
     [Fact]
     public void Write_ShouldWriteMessage()
     {
-        string file = CreateTempFile();
+        var file = CreateTempFile();
 
-        var sink = new TextFileSink(file);
+        var sink = new TextFileSink(file.Directory, file.BaseFileName);
 
         sink.Write(new LogEntry
         {
@@ -54,7 +55,7 @@ public class TextFileSinkTests
 
         sink.Shutdown();
 
-        string text = File.ReadAllText(file);
+        string text = File.ReadAllText(file.ExpectedFilePath);
 
         Assert.Contains("Failure", text);
         Assert.Contains("Camera", text);
@@ -65,9 +66,9 @@ public class TextFileSinkTests
     [Fact]
     public void Reset_ShouldClearFile()
     {
-        string file = CreateTempFile();
+        var file = CreateTempFile();
 
-        var sink = new TextFileSink(file);
+        var sink = new TextFileSink(file.Directory, file.BaseFileName);
 
         sink.Write(new LogEntry
         {
@@ -77,9 +78,10 @@ public class TextFileSinkTests
 
         sink.ResetForTesting();
 
+        Assert.True(File.Exists(file.ExpectedFilePath));
         sink.Shutdown();
 
-        string text = File.ReadAllText(file);
+        string text = File.ReadAllText(file.ExpectedFilePath);
 
         Assert.DoesNotContain("Old", text);
     }
