@@ -74,6 +74,18 @@ namespace mLogger
             ArgumentNullException.ThrowIfNull(sink);
             _sinks.Add(sink);
         }
+        public void RemoveSink(ILogSink sink)
+        {
+            ArgumentNullException.ThrowIfNull(sink);
+
+            lock (_lock)
+            {
+                if (_sinks.Remove(sink))
+                {
+                    sink.Shutdown();
+                }
+            }
+        }
 
         public void Log(LogLevel level, string source, string message)
         {

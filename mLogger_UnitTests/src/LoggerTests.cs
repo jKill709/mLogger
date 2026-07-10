@@ -61,4 +61,22 @@ public class LoggerTests
         Assert.Single(_memorySink.Logs);
         Assert.Single(secondSink.Logs);
     }
+
+    [Fact]
+    public void RemoveSink_ShouldStopReceivingMessages()
+    {
+        ResetLogger();
+
+        var secondSink = new InMemorySink();
+        Logger.Instance.AddSink(secondSink);
+        Logger.Instance.Info("Test", "Hello");
+
+        Assert.Single(_memorySink.Logs);
+        Assert.Single(secondSink.Logs);
+
+        Logger.Instance.RemoveSink(secondSink);
+        Logger.Instance.Info("Test", "World");
+        Assert.Equal(2, _memorySink.Logs.Count);
+        Assert.Single(secondSink.Logs); // Should still be 1
+    }
 }
