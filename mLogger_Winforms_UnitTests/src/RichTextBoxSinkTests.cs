@@ -52,6 +52,11 @@ namespace mLogger_Winforms_UnitTests
                 Message = "Test message"
             };
 
+            // Force the handle to be created
+            using Form form = new();
+            form.Controls.Add(tb);
+            var handle = tb.Handle;
+
             sink.Write(entry);
 
             Assert.IsNotNull(tb.Text);
@@ -70,6 +75,11 @@ namespace mLogger_Winforms_UnitTests
                 Source = "Unit Tests",
                 Message = "Test message"
             };
+
+            // Force the handle to be created
+            using Form form = new();
+            form.Controls.Add(tb);
+            var handle = tb.Handle;
 
             sink.Write(entry);
 
@@ -103,6 +113,12 @@ namespace mLogger_Winforms_UnitTests
                 Message = "Another Thing"
             };
 
+
+            // Force the handle to be created
+            using Form form = new();
+            form.Controls.Add(tb);
+            var handle = tb.Handle;
+
             sink.Write(entry1);
             sink.Write(entry2);
             sink.Write(entry3);
@@ -126,6 +142,11 @@ namespace mLogger_Winforms_UnitTests
                 Message = "Test message"
             };
 
+            // Force the handle to be created
+            using Form form = new();
+            form.Controls.Add(tb);
+            var handle = tb.Handle;
+
             sink.Write(entry);
 
             Assert.IsNotNull(tb.Text);
@@ -136,5 +157,53 @@ namespace mLogger_Winforms_UnitTests
             Assert.IsNotNull(tb.Text);
             Assert.IsEmpty(tb.Text);
         }
+
+        [TestMethod]
+        public void PendingQueue_DequeuesPoroperly()
+        {
+            RichTextBox tb = new RichTextBox();
+            RichTextBoxSink sink = new RichTextBoxSink(tb);
+            LogEntry entry1 = new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                Level = LogLevel.DEBUG,
+                Source = "Unit Tests",
+                Message = "This Message"
+            };
+            LogEntry entry2 = new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                Level = LogLevel.DEBUG,
+                Source = "Unit Tests",
+                Message = "That Text"
+            }; LogEntry entry3 = new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                Level = LogLevel.DEBUG,
+                Source = "Unit Tests",
+                Message = "Another Thing"
+            };
+
+            sink.Write(entry1);
+            sink.Write(entry2);
+            sink.Write(entry3);
+
+            // At this point, the RichTextBox handle has not been created, so the messages should not be in the RichTextBox yet
+            Assert.DoesNotContain(entry1.Message, tb.Text);
+            Assert.DoesNotContain(entry2.Message, tb.Text);
+            Assert.DoesNotContain(entry3.Message, tb.Text);
+
+            // Force the handle to be created
+            using Form form = new();
+            form.Controls.Add(tb);
+            var handle = tb.Handle;
+
+            // Now the messages should be in the RichTextBox
+            Assert.IsNotNull(tb.Text);
+            Assert.Contains(entry1.Message, tb.Text);
+            Assert.Contains(entry2.Message, tb.Text);
+            Assert.Contains(entry3.Message, tb.Text);
+        }
+
     }
 }

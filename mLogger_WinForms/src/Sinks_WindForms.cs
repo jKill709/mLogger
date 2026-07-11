@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 
@@ -7,8 +8,7 @@ namespace mLogger
     public class RichTextBoxSink : ILogSink
     {
         private readonly RichTextBox _textBox;
-        private readonly Queue<string> _pending = new();
-        private readonly object _lock = new();
+        private readonly ConcurrentQueue<string> _pending = new();
 
         public RichTextBoxSink(RichTextBox textBox)
         {
@@ -26,11 +26,11 @@ namespace mLogger
 
             if (!_textBox.IsHandleCreated)
             {
-                lock (_lock)
+                _pending.Enqueue(line);
+                if (_textBox.IsHandleCreated)
                 {
-                    _pending.Enqueue(line);
+                    FlushPending();
                 }
-
                 return;
             }
 
@@ -61,21 +61,12 @@ namespace mLogger
                 return;
             }
 
-            while (true)
+            while (_pending.TryDequeue(out var line))
             {
-                string? line;
-
-                lock (_lock)
-                {
-                    if (_pending.Count == 0)
-                        break;
-
-                    line = _pending.Dequeue();
-                }
-
                 _textBox.AppendText(line + Environment.NewLine);
             }
 
+            _textBox.SelectionStart = _textBox.TextLength;
             _textBox.ScrollToCaret();
         }
 
