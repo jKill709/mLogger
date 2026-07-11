@@ -15,18 +15,19 @@ namespace mLogger
 
         public void Write(LogEntry entry)
         {
-            string line = LogFormatter.FormatOneLineText(entry); // $"[{entry.Timestamp:HH:mm:ss}] {entry.Message}";
+            if (_textBox.IsDisposed || !_textBox.IsHandleCreated)
+                return;
 
-            if (_textBox.InvokeRequired)
+            string line = LogFormatter.FormatOneLineText(entry);
+
+            _textBox.BeginInvoke(new Action(() =>
             {
-                _textBox.BeginInvoke(new Action(() => _textBox.AppendText(line + Environment.NewLine)));
-                _textBox.BeginInvoke(new Action(() => _textBox.ScrollToCaret()));
-            }
-            else
-            {
+                if (_textBox.IsDisposed)
+                    return;
+
                 _textBox.AppendText(line + Environment.NewLine);
                 _textBox.ScrollToCaret();
-            }
+            }));
         }
 
         public void ResetForTesting()
