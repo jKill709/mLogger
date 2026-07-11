@@ -7,27 +7,76 @@ namespace mLogger
     public class RichTextBoxSink : ILogSink
     {
         private readonly RichTextBox _textBox;
+        private readonly Queue<string> _pending = new();
+        private readonly object _lock = new();
 
         public RichTextBoxSink(RichTextBox textBox)
         {
             _textBox = textBox ?? throw new ArgumentNullException(nameof(textBox));
+
+            _textBox.HandleCreated += (_, _) => FlushPending();
         }
 
         public void Write(LogEntry entry)
         {
-            if (_textBox.IsDisposed || !_textBox.IsHandleCreated)
+            if (_textBox.IsDisposed)
                 return;
 
             string line = LogFormatter.FormatOneLineText(entry);
 
-            _textBox.BeginInvoke(new Action(() =>
+            if (!_textBox.IsHandleCreated)
             {
-                if (_textBox.IsDisposed)
-                    return;
+                lock (_lock)
+                {
+                    _pending.Enqueue(line);
+                }
+
+                return;
+            }
+
+            AppendLine(line);
+        }
+        private void AppendLine(string line)
+        {
+            if (_textBox.IsDisposed)
+                return;
+
+            if (_textBox.InvokeRequired)
+            {
+                _textBox.BeginInvoke(() => AppendLine(line));
+                return;
+            }
+
+            _textBox.AppendText(line + Environment.NewLine);
+            _textBox.ScrollToCaret();
+        }
+        private void FlushPending()
+        {
+            if (_textBox.IsDisposed)
+                return;
+
+            if (_textBox.InvokeRequired)
+            {
+                _textBox.BeginInvoke(FlushPending);
+                return;
+            }
+
+            while (true)
+            {
+                string? line;
+
+                lock (_lock)
+                {
+                    if (_pending.Count == 0)
+                        break;
+
+                    line = _pending.Dequeue();
+                }
 
                 _textBox.AppendText(line + Environment.NewLine);
-                _textBox.ScrollToCaret();
-            }));
+            }
+
+            _textBox.ScrollToCaret();
         }
 
         public void ResetForTesting()
