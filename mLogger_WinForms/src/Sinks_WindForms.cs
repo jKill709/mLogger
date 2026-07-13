@@ -1,3 +1,4 @@
+using Microsoft.VisualBasic.Devices;
 using System;
 using System.Collections.Concurrent;
 using System.Runtime.Serialization;
@@ -17,7 +18,7 @@ namespace mLogger
             _textBox.HandleCreated += (_, _) => FlushPending();
         }
 
-        public void Write(LogEntry entry)
+        public void WriteLine(LogEntry entry)
         {
             if (_textBox.IsDisposed)
                 return;
@@ -35,6 +36,29 @@ namespace mLogger
             }
 
             AppendLine(line);
+        }
+        public void WriteHeading(LogEntry entry)
+        {
+            if (_textBox.IsDisposed)
+                return;
+
+            Char seperatorChar = '-';
+            string line = LogFormatter.FormatOneLineText(entry);
+            string innerPadding = new string(' ', 2);
+            string partialSeperator = new string(seperatorChar, 6);
+            string leadingPadding = new string(' ', line.Length - entry.Message.Length);
+            string fullSeperator = new string(seperatorChar, entry.Message.Length + (innerPadding.Length * 2) + (partialSeperator.Length * 2));
+            LogEntry firstLineEntry = new LogEntry
+            {
+                Timestamp = entry.Timestamp,
+                Level = entry.Level,
+                Source = entry.Source,
+                Message = fullSeperator
+            };
+
+            AppendLine(LogFormatter.FormatOneLineText(firstLineEntry));
+            AppendLine(leadingPadding + partialSeperator + innerPadding + entry.Message + innerPadding + partialSeperator);
+            AppendLine(leadingPadding + fullSeperator);
         }
         private void AppendLine(string line)
         {

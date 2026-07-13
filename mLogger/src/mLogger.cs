@@ -101,7 +101,24 @@ namespace mLogger
 
             foreach (var sink in _sinks)
             {
-                sink.Write(entry);
+                sink.WriteLine(entry);
+            }
+        }
+        public void LogHeading(LogLevel level, string source, string message)
+        {
+            if (!_isInitialized)
+                throw new InvalidOperationException("Logger must be initialized before use.");
+            LogEntry entry = new LogEntry
+            {
+                Timestamp = DateTime.Now,
+                Level = level,
+                Source = source,
+                Message = message
+            };
+
+            foreach (var sink in _sinks)
+            {
+                sink.WriteHeading(entry);
             }
         }
 

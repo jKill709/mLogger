@@ -5,7 +5,8 @@ namespace mLogger
     #region Sinks and Interface
     public interface ILogSink
     {
-        void Write(LogEntry entry);
+        void WriteLine(LogEntry entry);
+        void WriteHeading(LogEntry message);
         void ResetForTesting();
         void Shutdown();
     }
@@ -35,12 +36,34 @@ namespace mLogger
         {
             Shutdown();
         }
-        public void Write(LogEntry entry)
+        public void WriteLine(LogEntry entry)
         {
             lock (_lock)
             {
                 NewLogFileIfNeeded();
                 _writer.WriteLine(LogFormatter.FormatOneLineText(entry));
+                _writer.Flush();
+            }
+        }
+        public void WriteHeading(LogEntry entry)
+        {
+            lock (_lock)
+            {
+                Char seperatorChar = '-';
+                string line = LogFormatter.FormatOneLineText(entry);
+                string innerPadding = new string(' ', 2);
+                string partialSeperator = new string(seperatorChar, 6);
+                string leadingPadding = new string(' ', line.Length - entry.Message.Length);
+                string fullSeperator = new string(seperatorChar, entry.Message.Length + (innerPadding.Length * 2) + (partialSeperator.Length * 2));
+                LogEntry firstLineEntry = new LogEntry { Timestamp = entry.Timestamp,
+                                                         Level = entry.Level,
+                                                         Source = entry.Source,
+                                                         Message = fullSeperator };
+
+                NewLogFileIfNeeded();
+                _writer.WriteLine(LogFormatter.FormatOneLineText(firstLineEntry));
+                _writer.WriteLine(leadingPadding + partialSeperator + innerPadding + entry.Message + innerPadding + partialSeperator);
+                _writer.WriteLine(leadingPadding + fullSeperator);
                 _writer.Flush();
             }
         }
@@ -94,9 +117,29 @@ namespace mLogger
     }
     public class ConsoleSink : ILogSink
     {
-        public void Write(LogEntry entry)
+        public void WriteLine(LogEntry entry)
         {
             Console.WriteLine(LogFormatter.FormatOneLineText(entry));
+        }
+        public void WriteHeading(LogEntry entry)
+        {        
+            Char seperatorChar = '-';
+            string line = LogFormatter.FormatOneLineText(entry);
+            string innerPadding = new string(' ', 2);
+            string partialSeperator = new string(seperatorChar, 6);
+            string leadingPadding = new string(' ', line.Length - entry.Message.Length);
+            string fullSeperator = new string(seperatorChar, entry.Message.Length + (innerPadding.Length * 2) + (partialSeperator.Length * 2));
+            LogEntry firstLineEntry = new LogEntry
+            {
+                Timestamp = entry.Timestamp,
+                Level = entry.Level,
+                Source = entry.Source,
+                Message = fullSeperator
+            };
+
+            Console.WriteLine(LogFormatter.FormatOneLineText(firstLineEntry));
+            Console.WriteLine(leadingPadding + partialSeperator + innerPadding + entry.Message + innerPadding + partialSeperator);
+            Console.WriteLine(leadingPadding + fullSeperator);
         }
         public void ResetForTesting()
         {
@@ -114,12 +157,16 @@ namespace mLogger
         private readonly List<string> _inMemoryLogs = new();
         public IReadOnlyList<string> Logs => _inMemoryLogs;
 
-        public void Write(LogEntry entry)
+        public void WriteLine(LogEntry entry)
         {
             lock (_lock)
             {
                 _inMemoryLogs.Add(LogFormatter.FormatOneLineText(entry));
             }
+        }
+        public void WriteHeading(LogEntry entry)
+        {
+            _inMemoryLogs.Add(LogFormatter.FormatOneLineText(entry));
         }
         public void ResetForTesting()
         {

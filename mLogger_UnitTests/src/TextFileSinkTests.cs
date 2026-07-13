@@ -24,7 +24,7 @@ public class TextFileSinkTests
 
         var sink = new TextFileSink(file.Directory, file.BaseFileName);
 
-        sink.Write(new LogEntry
+        sink.WriteLine(new LogEntry
         {
             Timestamp = DateTime.Now,
             Level = LogLevel.INFO,
@@ -45,7 +45,7 @@ public class TextFileSinkTests
 
         var sink = new TextFileSink(file.Directory, file.BaseFileName);
 
-        sink.Write(new LogEntry
+        sink.WriteLine(new LogEntry
         {
             Timestamp = DateTime.Now,
             Level = LogLevel.ERROR,
@@ -70,7 +70,7 @@ public class TextFileSinkTests
 
         var sink = new TextFileSink(file.Directory, file.BaseFileName);
 
-        sink.Write(new LogEntry
+        sink.WriteLine(new LogEntry
         {
             Level = LogLevel.INFO,
             Message = "Old"
