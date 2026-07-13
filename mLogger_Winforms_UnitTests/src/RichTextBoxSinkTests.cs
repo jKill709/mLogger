@@ -34,7 +34,7 @@ namespace mLogger_Winforms_UnitTests
                                             Source = "Unit Tests",
                                             Message = "Test message" };
 
-            sink.Write(entry);
+            sink.WriteLine(entry);
 
             Assert.IsNotNull(tb.Text);
         }
@@ -57,7 +57,7 @@ namespace mLogger_Winforms_UnitTests
             form.Controls.Add(tb);
             var handle = tb.Handle;
 
-            sink.Write(entry);
+            sink.WriteLine(entry);
 
             Assert.IsNotNull(tb.Text);
             Assert.Contains(entry.Source, tb.Text);
@@ -81,7 +81,7 @@ namespace mLogger_Winforms_UnitTests
             form.Controls.Add(tb);
             var handle = tb.Handle;
 
-            sink.Write(entry);
+            sink.WriteLine(entry);
 
             Assert.IsNotNull(tb.Text);
             Assert.Contains(entry.Message, tb.Text);
@@ -119,9 +119,9 @@ namespace mLogger_Winforms_UnitTests
             form.Controls.Add(tb);
             var handle = tb.Handle;
 
-            sink.Write(entry1);
-            sink.Write(entry2);
-            sink.Write(entry3);
+            sink.WriteLine(entry1);
+            sink.WriteLine(entry2);
+            sink.WriteLine(entry3);
 
             Assert.IsNotNull(tb.Text);
             Assert.Contains(entry1.Message, tb.Text);
@@ -147,7 +147,7 @@ namespace mLogger_Winforms_UnitTests
             form.Controls.Add(tb);
             var handle = tb.Handle;
 
-            sink.Write(entry);
+            sink.WriteLine(entry);
 
             Assert.IsNotNull(tb.Text);
             Assert.Contains(entry.Message, tb.Text);
@@ -184,9 +184,9 @@ namespace mLogger_Winforms_UnitTests
                 Message = "Another Thing"
             };
 
-            sink.Write(entry1);
-            sink.Write(entry2);
-            sink.Write(entry3);
+            sink.WriteLine(entry1);
+            sink.WriteLine(entry2);
+            sink.WriteLine(entry3);
 
             // At this point, the RichTextBox handle has not been created, so the messages should not be in the RichTextBox yet
             Assert.DoesNotContain(entry1.Message, tb.Text);

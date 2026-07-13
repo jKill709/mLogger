@@ -101,7 +101,7 @@ namespace mLogger
 
             foreach (var sink in _sinks)
             {
-                sink.Write(entry);
+                sink.WriteLine(entry);
             }
         }
 

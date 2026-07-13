@@ -8,7 +8,7 @@ public class InMemorySinkTests
     {
         var sink = new InMemorySink();
 
-        sink.Write(new LogEntry
+        sink.WriteLine(new LogEntry
         {
             Timestamp = DateTime.Now,
             Level = LogLevel.INFO,
@@ -26,7 +26,7 @@ public class InMemorySinkTests
     {
         var sink = new InMemorySink();
 
-        sink.Write(new LogEntry
+        sink.WriteLine(new LogEntry
         {
             Level = LogLevel.INFO,
             Message = "Hello"
