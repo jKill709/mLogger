@@ -61,6 +61,28 @@ public class TextFileSinkTests
         Assert.Contains("Camera", text);
         Assert.Contains("ERR", text);
     }
+    [Fact]
+    public void WriteHeading_ShouldWriteHeaderFormatting()
+    {
+        var file = CreateTempFile();
+
+        var sink = new TextFileSink(file.Directory, file.BaseFileName);
+
+        sink.WriteHeading(new LogEntry
+        {
+            Timestamp = DateTime.Now,
+            Level = LogLevel.INFO,
+            Source = "Testing",
+            Message = "Starting"
+        });
+
+        sink.Shutdown();
+
+        string text = File.ReadAllText(file.ExpectedFilePath);
+
+        Assert.Contains("------------------------", text);
+        Assert.Contains("------  Starting  ------", text);
+    }
 
 
     [Fact]

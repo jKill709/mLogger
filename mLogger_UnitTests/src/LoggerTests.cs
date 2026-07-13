@@ -27,6 +27,39 @@ public class LoggerTests
         Assert.Single(_memorySink.Logs);
         Assert.Contains("Hello", _memorySink.Logs[0]);
     }
+    [Fact]
+    public void WriteLine_ShouldStoreFormattedMessage()
+    {
+        var sink = new InMemorySink();
+
+        sink.WriteLine(new LogEntry
+        {
+            Timestamp = DateTime.Now,
+            Level = LogLevel.INFO,
+            Source = "Test",
+            Message = "Hello"
+        });
+
+        Assert.Single(sink.Logs);
+        Assert.Contains("Test", sink.Logs[0]);
+        Assert.Contains("Hello", sink.Logs[0]);
+    }
+    [Fact]
+    public void WriteHeading_ShouldStoreFormattedMessage()
+    {
+        var sink = new InMemorySink();
+
+        sink.WriteHeading(new LogEntry
+        {
+            Timestamp = DateTime.Now,
+            Level = LogLevel.INFO,
+            Source = "Test",
+            Message = "Hello"
+        });
+
+        Assert.Single(sink.Logs);
+        Assert.Contains("--- Hello ---", sink.Logs[0]);
+    }
 
 
     [Theory]

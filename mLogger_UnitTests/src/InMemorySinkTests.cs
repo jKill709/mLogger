@@ -4,7 +4,7 @@ using Xunit;
 public class InMemorySinkTests
 {
     [Fact]
-    public void Write_ShouldStoreFormattedMessage()
+    public void WriteLine_ShouldStoreFormattedMessage()
     {
         var sink = new InMemorySink();
 
@@ -18,6 +18,22 @@ public class InMemorySinkTests
 
         Assert.Single(sink.Logs);
         Assert.Contains("Hello", sink.Logs[0]);
+    }
+    [Fact]
+    public void WriteHeading_ShouldStoreFormattedMessage()
+    {
+        var sink = new InMemorySink();
+
+        sink.WriteHeading(new LogEntry
+        {
+            Timestamp = DateTime.Now,
+            Level = LogLevel.INFO,
+            Source = "Test",
+            Message = "Hello"
+        });
+
+        Assert.Single(sink.Logs);
+        Assert.Contains("--- Hello ---", sink.Logs[0]);
     }
 
 

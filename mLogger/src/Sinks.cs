@@ -166,7 +166,14 @@ namespace mLogger
         }
         public void WriteHeading(LogEntry entry)
         {
-            _inMemoryLogs.Add(LogFormatter.FormatOneLineText(entry));
+            LogEntry headeredEntry = new LogEntry
+            {
+                Timestamp = entry.Timestamp,
+                Level = entry.Level,
+                Source = entry.Source,
+                Message = $"--- {entry.Message} ---"
+            };
+            _inMemoryLogs.Add(LogFormatter.FormatOneLineText(headeredEntry));
         }
         public void ResetForTesting()
         {
