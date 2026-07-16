@@ -194,8 +194,8 @@ namespace mLogger
         public override void WriteLine(LogEntry entry)
         {
             if (!ShouldWrite(entry.Source))
-                return; 
-            
+                return;
+
             Console.WriteLine(LogFormatter.FormatOneLineText(entry));
         }
         public override void WriteHeading(LogEntry entry)

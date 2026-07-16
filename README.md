@@ -18,7 +18,8 @@ The library supports:
     - Console output
     - Entries Stored in RAM
 - Additional Sinks available mLogger_WinForms
-    - TextBox
+    - RichTextBox
+- Sinks have whitelist/blacklist filtering for sources
 - Simple singleton-style access pattern
 
 
