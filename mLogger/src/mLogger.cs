@@ -53,12 +53,36 @@ namespace mLogger
                 _ => "UNK"
             };
         }
-        public static string FormatOneLineText(LogEntry entry, bool showTimestamp = true, bool showLevel = true, bool showSource = true)
+        public static string FormatOneLineText(LogEntry entry, bool showTimestamp = true, bool showLevel = true, bool showSource = true, bool showMessage = true)
         {
             string timestamp = FormatTimestamp(entry);
             string levelName = FormatLogLevel(entry);
 
-            return $"[{timestamp}] [{levelName}] [{entry.Source}] {entry.Message ?? "null"}";
+            string returnValue = string.Empty;
+
+            if (showTimestamp)
+            {
+                returnValue += $"[{timestamp}]";
+            }
+            if (showLevel)
+            {
+                if (returnValue.Length > 0)
+                    returnValue += " ";
+                returnValue += $"[{levelName}]";
+            }
+            if (showSource)
+            {
+                if (returnValue.Length > 0)
+                    returnValue += " ";
+                returnValue += $" [{entry.Source}]";
+            }
+            if (showMessage)
+            {
+                if (returnValue.Length > 0)
+                    returnValue += " ";
+                returnValue += $" {entry.Message ?? "null"}";
+            }
+            return returnValue;
         }
     }
     #endregion
