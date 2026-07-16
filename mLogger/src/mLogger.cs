@@ -30,11 +30,20 @@ namespace mLogger
     }
     public static class LogFormatter
     {
-        public static string FormatOneLineText(LogEntry entry)
+        public static string FormatTimestamp(LogEntry entry)
         {
-            string timestamp = entry.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff");
-
-            string levelName = entry.Level switch
+            return FormatTimestamp(entry.Timestamp);
+        }
+        public static string FormatTimestamp(DateTime timestamp)
+        {
+            return timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        }
+        public static string FormatLogLevel(LogEntry entry)
+        {
+            return FormatLogLevel(entry.Level);
+        }
+        public static string FormatLogLevel(LogLevel level) {
+            return level switch
             {
                 LogLevel.DEBUG => "DBG",
                 LogLevel.INFO => "INF",
@@ -43,10 +52,14 @@ namespace mLogger
                 LogLevel.FATAL => "FTL",
                 _ => "UNK"
             };
+        }
+        public static string FormatOneLineText(LogEntry entry, bool showTimestamp = true, bool showLevel = true, bool showSource = true)
+        {
+            string timestamp = FormatTimestamp(entry);
+            string levelName = FormatLogLevel(entry);
 
             return $"[{timestamp}] [{levelName}] [{entry.Source}] {entry.Message ?? "null"}";
         }
-
     }
     #endregion
 
