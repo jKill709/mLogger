@@ -15,37 +15,32 @@ namespace mLogger
     }
     public abstract class LogSinkBase : ILogSink
     {
-        private readonly List<Regex> _patterns = new();
-
+        protected readonly List<Regex> _patterns = new();
+        
         public bool IsBlacklist { get; set; } = true;
-
+        public bool useList { get; set; } = false;
+        public void AddPattern(Regex pattern)
+        {
+            _patterns.Add(pattern);
+        }
         public void AddPattern(string pattern)
         {
             _patterns.Add(new Regex(pattern, RegexOptions.Compiled));
         }
-        public void AddSource(string source, bool andModules)
+        public void AddSource(string source, bool andModules = true)
         {
             if (string.IsNullOrWhiteSpace(source))
                 throw new ArgumentException("Source cannot be null or empty.", nameof(source));
 
-            string pattern;
+            AddPattern(CreateSourceRegex(source, andModules));
+        }
+        protected static Regex CreateSourceRegex(string source, bool andModules)
+        {
+            string pattern = andModules
+                ? $"^{Regex.Escape(source)}(?:_.*)?$"
+                : $"^{Regex.Escape(source)}$";
 
-            if (andModules)
-            {
-                // Match:
-                //   Main
-                //   Main_IO
-                //   Main_Anything
-                pattern = $"^{Regex.Escape(source)}(?:_.*)?$";
-            }
-            else
-            {
-                // Match only:
-                //   Main
-                pattern = $"^{Regex.Escape(source)}$";
-            }
-
-            AddPattern(pattern);
+            return new Regex(pattern, RegexOptions.Compiled);
         }
         protected bool IsListed(string source)
         {
@@ -54,11 +49,14 @@ namespace mLogger
 
         protected bool ShouldWrite(string source)
         {
-            bool listed = IsListed(source);
-
-            return IsBlacklist
-                ? !listed      // blacklist
-                : listed;      // whitelist
+            if (useList)
+            {
+                return IsBlacklist ? !IsListed(source) : IsListed(source);
+            }
+            else
+            {
+                return true; // no filtering
+            }
         }
 
         public abstract void WriteLine(LogEntry entry);

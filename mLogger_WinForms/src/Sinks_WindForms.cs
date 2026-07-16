@@ -2,14 +2,23 @@ using Microsoft.VisualBasic.Devices;
 using System;
 using System.Collections.Concurrent;
 using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using static System.Windows.Forms.LinkLabel;
 
 namespace mLogger
 {
+    public class LogPattern
+    {
+        public Regex Regex { get; }
+        public Color? Color { get; }
+    }
     public class RichTextBoxSink : LogSinkBase
     {
-        private readonly RichTextBox _textBox;
-        private readonly ConcurrentQueue<string> _pending = new();
+        private readonly RichTextBox _textBox; 
+        private readonly List<(Regex Pattern, Color Color)> _colorPatterns = new();
+
+        private readonly ConcurrentQueue<(string Text, Color? ForeColor, Color? BackColor, FontStyle? Style, float? FontSize)> _pending = new();
 
         public RichTextBoxSink(RichTextBox textBox)
         {
@@ -18,16 +27,51 @@ namespace mLogger
             _textBox.HandleCreated += (_, _) => FlushPending();
         }
 
+        public void AddPattern(string pattern, Color color)
+        {
+            _colorPatterns.Add((new Regex(pattern, RegexOptions.Compiled), color));
+
+            base.AddPattern(pattern);
+        }
+        public void AddSource(string source, bool andModules = true, Color color = default)
+        {
+            Regex pattern = CreateSourceRegex(source, andModules);
+            base.AddPattern(pattern);
+            _colorPatterns.Add((pattern, color));
+        }
+        private Color GetColor(string source)
+        {
+            foreach (var entry in _colorPatterns)
+            {
+                if (entry.Pattern.IsMatch(source))
+                    return entry.Color;
+            }
+
+            return Color.Black; // _textBox.ForeColor;
+        }
         public override void WriteLine(LogEntry entry)
         {
             if (!ShouldWrite(entry.Source))
                 return;
 
-            string line = LogFormatter.FormatOneLineText(entry);
+            string Title = LogFormatter.FormatOneLineText(entry);
+            Color TitleColor = GetColor(entry.Source);
+            
+            string Message = LogFormatter.FormatOneLineText(entry) + Environment.NewLine;
+            Color MessageColor = entry.Level switch
+            {
+                LogLevel.DEBUG => Color.Blue,
+                LogLevel.INFO => Color.Black,
+                LogLevel.WARN => Color.Orange,
+                LogLevel.ERROR => Color.Red,
+                LogLevel.FATAL => Color.DarkRed,
+                _ => Color.Green
+            };
 
             if (!_textBox.IsHandleCreated)
             {
-                _pending.Enqueue(line);
+                _pending.Enqueue((Title, TitleColor, Color.Empty, FontStyle.Regular, (float?)null));
+                _pending.Enqueue((Message, MessageColor, Color.Empty, FontStyle.Regular, (float?)null));
                 if (_textBox.IsHandleCreated)
                 {
                     FlushPending();
@@ -35,7 +79,8 @@ namespace mLogger
                 return;
             }
 
-            AppendLine(line);
+            AppendText(Title, TitleColor, Color.Empty, FontStyle.Regular, (float?)null);
+            AppendText(Message, MessageColor, Color.Empty, FontStyle.Regular, (float?)null);
         }
         public override void WriteHeading(LogEntry entry)
         {
@@ -64,7 +109,7 @@ namespace mLogger
 
             AppendLine(new string('-', 120));
         }
-        private void AppendLine(string line, Color? foreColor = null, Color? backColor = null, FontStyle fontStyle = FontStyle.Regular, float? fontSize = null)
+        private void AppendText(string line, Color? foreColor = null, Color? backColor = null, FontStyle fontStyle = FontStyle.Regular, float? fontSize = null)
         {
             // Check if the RichTextBox is disposed before proceeding
             if (_textBox.IsDisposed)
@@ -97,7 +142,10 @@ namespace mLogger
             _textBox.SelectionColor = originalForeColor;
             _textBox.SelectionBackColor = originalBackColor;
             _textBox.SelectionFont = originalFont;
-
+        }
+        public void AppendLine(string line)
+        {
+            AppendText(line + Environment.NewLine);
 
             _textBox.ScrollToCaret();
         }
@@ -114,7 +162,17 @@ namespace mLogger
 
             while (_pending.TryDequeue(out var line))
             {
-                _textBox.AppendText(line + Environment.NewLine);
+                if (line.ForeColor == null || line.ForeColor == Color.Empty)
+                    line.ForeColor = _textBox.ForeColor;
+                if (line.BackColor == null || line.BackColor == Color.Empty)
+                    line.BackColor = _textBox.BackColor;
+                if (line.Style == null)
+                    line.Style = FontStyle.Regular;
+                if (line.FontSize == null)
+                    line.FontSize = _textBox.Font.Size; 
+
+                AppendText(line.Text, line.ForeColor, line.BackColor, (FontStyle)line.Style, line.FontSize);
+
             }
 
             _textBox.SelectionStart = _textBox.TextLength;

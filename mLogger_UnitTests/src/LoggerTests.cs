@@ -132,6 +132,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = true;
         _memorySink.AddPattern("^Blocked$");
 
@@ -145,6 +146,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = true;
         _memorySink.AddPattern("^Blocked$");
 
@@ -158,6 +160,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = false;
         _memorySink.AddPattern("^Allowed$");
 
@@ -171,6 +174,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = false;
         _memorySink.AddPattern("^Allowed$");
 
@@ -184,6 +188,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = true;
         _memorySink.AddSource("Blocked", false);
 
@@ -197,6 +202,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = true;
         _memorySink.AddSource("Blocked", false);
 
@@ -210,6 +216,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = false;
         _memorySink.AddSource("Allowed", false);
 
@@ -223,6 +230,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = false;
         _memorySink.AddSource("Allowed", false);
 
@@ -236,6 +244,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = true;
         _memorySink.AddSource("Blocked", true);
 
@@ -249,6 +258,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = true;
         _memorySink.AddSource("Blocked", true);
 
@@ -262,6 +272,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = false;
         _memorySink.AddSource("Allowed", true);
 
@@ -275,6 +286,7 @@ public class LoggerTests
     {
         ResetLogger();
 
+        _memorySink.useList = true;
         _memorySink.IsBlacklist = false;
         _memorySink.AddSource("Allowed", true);
 
@@ -282,4 +294,81 @@ public class LoggerTests
 
         Assert.Single(_memorySink.Logs);
     }
+
+    [Fact]
+    public void useList_ShouldEnableBlackListWhenTrue()
+    {
+        string allowed = "Allowed";
+        string blocked = "Blocked";
+
+        ResetLogger();
+
+        _memorySink.useList = true;
+        _memorySink.IsBlacklist = true;
+        _memorySink.AddSource(blocked, true);
+
+        Logger.Instance.Info(allowed, "Hello");
+        Logger.Instance.Info(blocked, "Hello");
+
+        Assert.Contains(_memorySink.Logs, log => log.Contains(allowed));
+        Assert.DoesNotContain(_memorySink.Logs, log => log.Contains(blocked));
+    }
+
+    [Fact]
+    public void useList_ShouldDisableBlackListWhenFalse()
+    {
+        string allowed = "Allowed";
+        string blocked = "Blocked";
+
+        ResetLogger();
+
+        _memorySink.useList = false;
+        _memorySink.IsBlacklist = true;
+        _memorySink.AddSource(blocked, true);
+
+        Logger.Instance.Info(allowed, "Hello");
+        Logger.Instance.Info(blocked, "Hello");
+
+        Assert.Contains(_memorySink.Logs, log => log.Contains(allowed));
+        Assert.Contains(_memorySink.Logs, log => log.Contains(blocked));
+    }
+
+    [Fact]
+    public void useList_ShouldEnableWhitelistWhenTrue()
+    {
+        string allowed = "Allowed";
+        string blocked = "Blocked";
+
+        ResetLogger();
+
+        _memorySink.useList = true;
+        _memorySink.IsBlacklist = false;
+        _memorySink.AddSource(allowed, true);
+
+        Logger.Instance.Info(allowed, "Hello");
+        Logger.Instance.Info(blocked, "Hello");
+
+        Assert.Contains(_memorySink.Logs, log => log.Contains(allowed));
+        Assert.DoesNotContain(_memorySink.Logs, log => log.Contains(blocked));
+    }
+
+    [Fact]
+    public void useList_ShouldDisableWhitelistWhenFalse()
+    {
+        string allowed = "Allowed";
+        string blocked = "Blocked";
+
+        ResetLogger();
+
+        _memorySink.useList = false;
+        _memorySink.IsBlacklist = false;
+        _memorySink.AddSource(allowed, true);
+
+        Logger.Instance.Info(allowed, "Hello");
+        Logger.Instance.Info(blocked, "Hello");
+
+        Assert.Contains(_memorySink.Logs, log => log.Contains(allowed));
+        Assert.Contains(_memorySink.Logs, log => log.Contains(blocked));
+    }
+
 }
