@@ -60,6 +60,20 @@ public class LoggerTests
         Assert.Single(sink.Logs);
         Assert.Contains("--- Hello ---", sink.Logs[0]);
     }
+    [Fact]
+    public void WriteSeperator_ShouldStoreSeperator()
+    {
+        var sink = new InMemorySink();
+        sink.WriteSeperator(new LogEntry
+        {
+            Timestamp = DateTime.Now,
+            Level = LogLevel.INFO,
+            Source = "Test",
+            Message = "Hello"
+        });
+        Assert.Single(sink.Logs);
+        Assert.Equal(new string('-', 120), sink.Logs[0]);
+    }
 
 
     [Theory]
@@ -111,5 +125,57 @@ public class LoggerTests
         Logger.Instance.Info("Test", "World");
         Assert.Equal(2, _memorySink.Logs.Count);
         Assert.Single(secondSink.Logs); // Should still be 1
+    }
+
+    [Fact]
+    public void Blacklist_ShouldHaveNoFalsePositives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = true;
+        _memorySink.AddPattern("^Blocked$");
+
+        Logger.Instance.Info("Allowed", "Hello");
+
+        Assert.Single(_memorySink.Logs);
+    }
+
+    [Fact]
+    public void Blacklist_ShouldHaveNoFalseNegatives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = true;
+        _memorySink.AddPattern("^Blocked$");
+
+        Logger.Instance.Info("Blocked", "Hello");
+
+        Assert.Empty(_memorySink.Logs);
+    }
+
+    [Fact]
+    public void Whitelist_ShouldHaveNoFalsePositives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = false;
+        _memorySink.AddPattern("^Allowed$");
+
+        Logger.Instance.Info("Blocked", "Hello");
+
+        Assert.Empty(_memorySink.Logs);
+    }
+
+    [Fact]
+    public void Whitelist_ShouldHaveNoFalseNegatives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = false;
+        _memorySink.AddPattern("^Allowed$");
+
+        Logger.Instance.Info("Allowed", "Hello");
+
+        Assert.Single(_memorySink.Logs);
     }
 }

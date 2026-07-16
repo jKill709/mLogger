@@ -1,16 +1,50 @@
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace mLogger
 {
     #region Sinks and Interface
-    public interface ILogSink
+    public interface ILogSink // todo - add ': IDisposable'
     {
+
         void WriteLine(LogEntry entry);
-        void WriteHeading(LogEntry message);
+        void WriteHeading(LogEntry entry);
+        void WriteSeperator(LogEntry entry);
         void ResetForTesting();
         void Shutdown();
     }
-    public class TextFileSink : ILogSink
+    public abstract class LogSinkBase : ILogSink
+    {
+        private readonly List<Regex> _patterns = new();
+
+        public bool IsBlacklist { get; set; } = true;
+
+        public void AddPattern(string pattern)
+        {
+            _patterns.Add(new Regex(pattern, RegexOptions.Compiled));
+        }
+
+        protected bool IsListed(string source)
+        {
+            return _patterns.Any(r => r.IsMatch(source));
+        }
+
+        protected bool ShouldWrite(string source)
+        {
+            bool listed = IsListed(source);
+
+            return IsBlacklist
+                ? !listed      // blacklist
+                : listed;      // whitelist
+        }
+
+        public abstract void WriteLine(LogEntry entry);
+        public abstract void WriteHeading(LogEntry entry);
+        public abstract void WriteSeperator(LogEntry entry);
+        public abstract void ResetForTesting();
+        public abstract void Shutdown();
+    }
+    public class TextFileSink : LogSinkBase
     {
         private readonly object _lock = new();
 
@@ -36,8 +70,11 @@ namespace mLogger
         {
             Shutdown();
         }
-        public void WriteLine(LogEntry entry)
+        public override void WriteLine(LogEntry entry)
         {
+            if (!ShouldWrite(entry.Source))
+                return;
+
             lock (_lock)
             {
                 NewLogFileIfNeeded();
@@ -45,8 +82,11 @@ namespace mLogger
                 _writer.Flush();
             }
         }
-        public void WriteHeading(LogEntry entry)
+        public override void WriteHeading(LogEntry entry)
         {
+            if (!ShouldWrite(entry.Source))
+                return;
+
             lock (_lock)
             {
                 Char seperatorChar = '-';
@@ -67,7 +107,18 @@ namespace mLogger
                 _writer.Flush();
             }
         }
-        public void ResetForTesting()
+        public override void WriteSeperator(LogEntry entry)
+        {
+            if (!ShouldWrite(entry.Source))
+                return;
+
+            lock (_lock)
+            {
+                _writer.WriteLine(new string('-', 120));
+                _writer.Flush();
+            }
+        }
+        public override void ResetForTesting()
         {
             lock (_lock)
             {
@@ -87,7 +138,7 @@ namespace mLogger
                 NewLogFileIfNeeded();
             }
         }
-        public void Shutdown()
+        public override void Shutdown()
         {
             lock (_lock)
             {
@@ -115,14 +166,20 @@ namespace mLogger
             }
         }
     }
-    public class ConsoleSink : ILogSink
+    public class ConsoleSink : LogSinkBase
     {
-        public void WriteLine(LogEntry entry)
+        public override void WriteLine(LogEntry entry)
         {
+            if (!ShouldWrite(entry.Source))
+                return; 
+            
             Console.WriteLine(LogFormatter.FormatOneLineText(entry));
         }
-        public void WriteHeading(LogEntry entry)
-        {        
+        public override void WriteHeading(LogEntry entry)
+        {
+            if (!ShouldWrite(entry.Source))
+                return;
+
             Char seperatorChar = '-';
             string line = LogFormatter.FormatOneLineText(entry);
             string innerPadding = new string(' ', 2);
@@ -141,31 +198,44 @@ namespace mLogger
             Console.WriteLine(leadingPadding + partialSeperator + innerPadding + entry.Message + innerPadding + partialSeperator);
             Console.WriteLine(leadingPadding + fullSeperator);
         }
-        public void ResetForTesting()
+        public override void WriteSeperator(LogEntry entry)
+        {
+            if (!ShouldWrite(entry.Source))
+                return;
+
+            Console.WriteLine(new string('-', 120));
+        }
+        public override void ResetForTesting()
         {
             Console.WriteLine("--- ResetForTesting called on ConsoleSink. No action taken. ---");
         }
-        public void Shutdown()
+        public override void Shutdown()
         {
             Console.WriteLine("--- Shutdown called on ConsoleSink. No action taken. ---");
         }
     }
-    public class InMemorySink : ILogSink
+    public class InMemorySink : LogSinkBase
     {
         private readonly object _lock = new();
 
         private readonly List<string> _inMemoryLogs = new();
         public IReadOnlyList<string> Logs => _inMemoryLogs;
 
-        public void WriteLine(LogEntry entry)
+        public override void WriteLine(LogEntry entry)
         {
+            if (!ShouldWrite(entry.Source))
+                return;
+
             lock (_lock)
-            {
+            {   
                 _inMemoryLogs.Add(LogFormatter.FormatOneLineText(entry));
             }
         }
-        public void WriteHeading(LogEntry entry)
+        public override void WriteHeading(LogEntry entry)
         {
+            if (!ShouldWrite(entry.Source))
+                return;
+
             LogEntry headeredEntry = new LogEntry
             {
                 Timestamp = entry.Timestamp,
@@ -173,16 +243,30 @@ namespace mLogger
                 Source = entry.Source,
                 Message = $"--- {entry.Message} ---"
             };
-            _inMemoryLogs.Add(LogFormatter.FormatOneLineText(headeredEntry));
+
+            lock (_lock)
+            {
+                _inMemoryLogs.Add(LogFormatter.FormatOneLineText(headeredEntry)); 
+            }
         }
-        public void ResetForTesting()
+        public override void WriteSeperator(LogEntry entry)
+        {
+            if (!ShouldWrite(entry.Source))
+                return;
+
+            lock (_lock)
+            {
+                _inMemoryLogs.Add(new string('-', 120));
+            }
+        }
+        public override void ResetForTesting()
         {
             lock (_lock)
             {
                 _inMemoryLogs.Clear();
             }
         }
-        public void Shutdown()
+        public override void Shutdown()
         { }
     }
     #endregion
