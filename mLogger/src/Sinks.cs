@@ -23,7 +23,30 @@ namespace mLogger
         {
             _patterns.Add(new Regex(pattern, RegexOptions.Compiled));
         }
+        public void AddSource(string source, bool andModules)
+        {
+            if (string.IsNullOrWhiteSpace(source))
+                throw new ArgumentException("Source cannot be null or empty.", nameof(source));
 
+            string pattern;
+
+            if (andModules)
+            {
+                // Match:
+                //   Main
+                //   Main_IO
+                //   Main_Anything
+                pattern = $"^{Regex.Escape(source)}(?:_.*)?$";
+            }
+            else
+            {
+                // Match only:
+                //   Main
+                pattern = $"^{Regex.Escape(source)}$";
+            }
+
+            AddPattern(pattern);
+        }
         protected bool IsListed(string source)
         {
             return _patterns.Any(r => r.IsMatch(source));

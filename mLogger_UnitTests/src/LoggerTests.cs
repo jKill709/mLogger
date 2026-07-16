@@ -128,7 +128,7 @@ public class LoggerTests
     }
 
     [Fact]
-    public void Blacklist_ShouldHaveNoFalsePositives()
+    public void BlacklistPattern_ShouldHaveNoFalsePositives()
     {
         ResetLogger();
 
@@ -141,7 +141,7 @@ public class LoggerTests
     }
 
     [Fact]
-    public void Blacklist_ShouldHaveNoFalseNegatives()
+    public void BlacklistPattern_ShouldHaveNoFalseNegatives()
     {
         ResetLogger();
 
@@ -154,7 +154,7 @@ public class LoggerTests
     }
 
     [Fact]
-    public void Whitelist_ShouldHaveNoFalsePositives()
+    public void WhitelistPattern_ShouldHaveNoFalsePositives()
     {
         ResetLogger();
 
@@ -167,7 +167,7 @@ public class LoggerTests
     }
 
     [Fact]
-    public void Whitelist_ShouldHaveNoFalseNegatives()
+    public void WhitelistPattern_ShouldHaveNoFalseNegatives()
     {
         ResetLogger();
 
@@ -175,6 +175,110 @@ public class LoggerTests
         _memorySink.AddPattern("^Allowed$");
 
         Logger.Instance.Info("Allowed", "Hello");
+
+        Assert.Single(_memorySink.Logs);
+    }
+
+    [Fact]
+    public void BlacklistSourceWithoutModules_ShouldHaveNoFalsePositives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = true;
+        _memorySink.AddSource("Blocked", false);
+
+        Logger.Instance.Info("Allowed", "Hello");
+
+        Assert.Single(_memorySink.Logs);
+    }
+
+    [Fact]
+    public void BlacklistSourceWithoutModules_ShouldHaveNoFalseNegatives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = true;
+        _memorySink.AddSource("Blocked", false);
+
+        Logger.Instance.Info("Blocked", "Hello");
+
+        Assert.Empty(_memorySink.Logs);
+    }
+
+    [Fact]
+    public void WhitelistSourceWithoutModules_ShouldHaveNoFalsePositives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = false;
+        _memorySink.AddSource("Allowed", false);
+
+        Logger.Instance.Info("Blocked", "Hello");
+
+        Assert.Empty(_memorySink.Logs);
+    }
+
+    [Fact]
+    public void WhitelistSourceWithoutModules_ShouldHaveNoFalseNegatives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = false;
+        _memorySink.AddSource("Allowed", false);
+
+        Logger.Instance.Info("Allowed", "Hello");
+
+        Assert.Single(_memorySink.Logs);
+    }
+
+    [Fact]
+    public void BlacklistSourceWithModules_ShouldHaveNoFalsePositives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = true;
+        _memorySink.AddSource("Blocked", true);
+
+        Logger.Instance.Info("Allowed_Module", "Hello");
+
+        Assert.Single(_memorySink.Logs);
+    }
+
+    [Fact]
+    public void BlacklistSourceWithModules_ShouldHaveNoFalseNegatives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = true;
+        _memorySink.AddSource("Blocked", true);
+
+        Logger.Instance.Info("Blocked_Module", "Hello");
+
+        Assert.Empty(_memorySink.Logs);
+    }
+
+    [Fact]
+    public void WhitelistSourceWithModules_ShouldHaveNoFalsePositives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = false;
+        _memorySink.AddSource("Allowed", true);
+
+        Logger.Instance.Info("Blocked_Module", "Hello");
+
+        Assert.Empty(_memorySink.Logs);
+    }
+
+    [Fact]
+    public void WhitelistSourceWithModules_ShouldHaveNoFalseNegatives()
+    {
+        ResetLogger();
+
+        _memorySink.IsBlacklist = false;
+        _memorySink.AddSource("Allowed", true);
+
+        Logger.Instance.Info("Allowed_Module", "Hello");
 
         Assert.Single(_memorySink.Logs);
     }
