@@ -84,23 +84,55 @@ namespace mLogger
         }
         public override void WriteHeading(LogEntry entry)
         {
+            //if (!ShouldWrite(entry.Source))
+            //    return;
+            //
+            //Char seperatorChar = '-';
+            //string line = LogFormatter.FormatOneLineText(entry);
+            //string innerPadding = new string(' ', 2);
+            //string partialSeperator = new string(seperatorChar, 6);
+            //string leadingPadding = new string(' ', line.Length - entry.Message.Length);
+            //string fullSeperator = new string(seperatorChar, entry.Message.Length + (innerPadding.Length * 2) + (partialSeperator.Length * 2));
+            //LogEntry firstLineEntry = new LogEntry { Timestamp = entry.Timestamp,
+            //                                          Level = entry.Level,
+            //                                          Source = entry.Source,
+            //                                          Message = fullSeperator };
+
+            //AppendLine(LogFormatter.FormatOneLineText(firstLineEntry));
+            //AppendLine(leadingPadding + partialSeperator + innerPadding + entry.Message + innerPadding + partialSeperator);
+            //AppendLine(leadingPadding + fullSeperator);
+
+
             if (!ShouldWrite(entry.Source))
                 return;
 
-            Char seperatorChar = '-';
-            string line = LogFormatter.FormatOneLineText(entry);
-            string innerPadding = new string(' ', 2);
-            string partialSeperator = new string(seperatorChar, 6);
-            string leadingPadding = new string(' ', line.Length - entry.Message.Length);
-            string fullSeperator = new string(seperatorChar, entry.Message.Length + (innerPadding.Length * 2) + (partialSeperator.Length * 2));
-            LogEntry firstLineEntry = new LogEntry { Timestamp = entry.Timestamp,
-                                                      Level = entry.Level,
-                                                      Source = entry.Source,
-                                                      Message = fullSeperator };
+            string Title = LogFormatter.FormatOneLineText(entry);
+            Color TitleColor = GetColor(entry.Source);
 
-            AppendLine(LogFormatter.FormatOneLineText(firstLineEntry));
-            AppendLine(leadingPadding + partialSeperator + innerPadding + entry.Message + innerPadding + partialSeperator);
-            AppendLine(leadingPadding + fullSeperator);
+            string Message = LogFormatter.FormatOneLineText(entry) + Environment.NewLine;
+            Color MessageColor = entry.Level switch
+            {
+                LogLevel.DEBUG => Color.Blue,
+                LogLevel.INFO => Color.Black,
+                LogLevel.WARN => Color.Orange,
+                LogLevel.ERROR => Color.Red,
+                LogLevel.FATAL => Color.DarkRed,
+                _ => Color.Green
+            };
+
+            if (!_textBox.IsHandleCreated)
+            {
+                _pending.Enqueue((Title, TitleColor, Color.Empty, FontStyle.Bold, (float?)null));
+                _pending.Enqueue((Message, MessageColor, Color.Empty, FontStyle.Bold, (float?)null));
+                if (_textBox.IsHandleCreated)
+                {
+                    FlushPending();
+                }
+                return;
+            }
+
+            AppendText(Title, TitleColor, Color.Empty, FontStyle.Regular, (float?)null);
+            AppendText(Message, MessageColor, Color.Empty, FontStyle.Regular, (float?)null);
         }
         public override void WriteSeperator(LogEntry entry)
         {
