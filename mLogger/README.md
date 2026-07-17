@@ -17,10 +17,8 @@ The library supports:
     - Text file
     - Console output
     - Entries Stored in RAM
-    - Each sink has separate regex whitelist/blacklist functionality
 - Additional Sinks available mLogger_WinForms
     - RichTextBox
-        - Leverages Rich Text formating to show information at a glance
 - Sinks have whitelist/blacklist filtering for sources
 - Simple singleton-style access pattern
 
@@ -62,48 +60,15 @@ mLogger/
 ### Basic Example
 
 ```csharp
-/************************************
-***     Basic Use                   *
-************************************/
-// Instantiate sinks and Logger
-Logger logger = Logger.Instance;
-logger.Instance.Initialize("MyApp");
-
 TextFileSink textSink = new ("C:/Logs/", "MyApp");
-ConsoleSink conSink = new ();
 MemorySink memSink = new ();
+Logger.Instance.Initialize("MyApp");
+Logger.AddSink(textSink);
+Logger.AddSink(memSink);
 
-// Inject sinks
-logger.AddSink(textSink);
-logger.Addsink(conSink);
-logger.AddSink(memSink);
-
-logger.Info("Startup", "Application started successfully.");
-logger.Warn("Config", "Using default configuration.");
-logger.Error("Database", "Connection failed.");
-
-/************************************
-***     Whitelist                   *
-************************************/
-
-memSink.AddSource("Allowed");
-memSink.isBlackList = false;
-memsink.useList = true;
-
-Logger.Instance.Info("Allowed", "Hello");  // will log to all
-Logger.Instance.Info("Blocked", "Hello");  // won't log to Memory sink, still logs to all others
-
-/************************************
-***     Blacklist                   *
-************************************/
-
-textSink.AddSource("Blocked");
-textSink.isBlackList = true;
-textSink.useList = true;
-
-textSink.Instance.Info("Allowed", "Hello");  // will log to All
-textSink.Instance.Info("Blocked", "Hello");  // will no longer log to textSink
-
+Logger.Instance.Info("Startup", "Application started successfully.");
+Logger.Instance.Warn("Config", "Using default configuration.");
+Logger.Instance.Error("Database", "Connection failed.");
 ```
 
 ### Log Levels
@@ -135,6 +100,7 @@ No dependency on System.Windows.Forms
 No reliance on application UI context
 Clean separation of concerns
 Reusability across different application types
+Future Improvements
 
 ## License
 
