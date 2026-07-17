@@ -54,10 +54,10 @@ namespace mLogger
             if (!ShouldWrite(entry.Source))
                 return;
 
-            string Title = LogFormatter.FormatOneLineText(entry);
+            string Title = LogFormatter.FormatOneLineText(entry, true, true, true, false);
             Color TitleColor = GetColor(entry.Source);
-            
-            string Message = LogFormatter.FormatOneLineText(entry) + Environment.NewLine;
+
+            string Message = LogFormatter.FormatOneLineText(entry, false, false, false, true);
             Color MessageColor = entry.Level switch
             {
                 LogLevel.DEBUG => Color.Blue,
@@ -72,6 +72,7 @@ namespace mLogger
             {
                 _pending.Enqueue((Title, TitleColor, Color.Empty, FontStyle.Regular, (float?)null));
                 _pending.Enqueue((Message, MessageColor, Color.Empty, FontStyle.Regular, (float?)null));
+                _pending.Enqueue((Environment.NewLine, Color.Empty, Color.Empty, FontStyle.Regular, (float?)null));
                 if (_textBox.IsHandleCreated)
                 {
                     FlushPending();
@@ -81,6 +82,7 @@ namespace mLogger
 
             AppendText(Title, TitleColor, Color.Empty, FontStyle.Regular, (float?)null);
             AppendText(Message, MessageColor, Color.Empty, FontStyle.Regular, (float?)null);
+            AppendText(Environment.NewLine, Color.Empty, Color.Empty, FontStyle.Regular, (float?)null);
         }
         public override void WriteHeading(LogEntry entry)
         {
@@ -168,7 +170,7 @@ namespace mLogger
                 size,
                 fontStyle);
 
-            _textBox.AppendText(line + Environment.NewLine);
+            _textBox.AppendText(line);
 
             // Restore formatting
             _textBox.SelectionColor = originalForeColor;
@@ -204,7 +206,6 @@ namespace mLogger
                     line.FontSize = _textBox.Font.Size; 
 
                 AppendText(line.Text, line.ForeColor, line.BackColor, (FontStyle)line.Style, line.FontSize);
-
             }
 
             _textBox.SelectionStart = _textBox.TextLength;
