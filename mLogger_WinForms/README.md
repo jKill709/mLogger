@@ -15,7 +15,9 @@ The library supports:
 - Thread-safe logging
 - Built in sinks
     - RichTextBoxSink for logging to a RichTextBox control
-- Same whitelist/blacklist functionality for filtering sources
+        - Supports color-coded header based on source
+        - Supports color-coded messages based on log level
+- Same whitelist/blacklist functionality for filtering sources as other sinks in the mLogger library
 
 
 ## Project Structure
@@ -32,6 +34,8 @@ mLogger_WinForms/
 
 ### Basic Example
 
+VS generated forms will usually set each RichTextBox.text = "" during its InitializeComponent() method.  You must manually remove this line, or any logs written during startup are likely to be removed befor the control draws itself.
+
 ```csharp
 /************************************
 ***     Basic Use                   *
@@ -43,26 +47,33 @@ logger.Instance.Initialize("MyApp");
 RichTextBox tb = new RichTextBox();
 RichTextBoxSink tbSink = new RichTextBoxSink(tb);
 
+tbSink.AddSource("Startup", true, Color.LightBlue);
+tbSink.AddSource("Config", false, Color.Magenta);
+tbSink.AddSource("Database", true, new Color { A = 255, R = 128, G = 255, B = 128 } );
+
 // Inject sink
 logger.AddSink(tbSink);
-
-logger.Info("Startup", "Application started successfully.");
-logger.Warn("Config", "Using default configuration.");
-logger.Error("Database", "Connection failed.");
+                                                                                // Header Color       |    Message Color
+                                                                                //   (Source)         | (Message's LogLevel)
+logger.Info("Startup", "Application started successfully.");                    //   Light Blue       |        Black
+logger.Debug("Startup_TimerModule", "timer readout:  63 seconds");              //   Light Blue       |        Blue
+logger.Warn("Config", "Using default configuration.");                          //   Magenta          |        Orange
+logger.Warn("Config_Parser", "Error during parsing.  Reverting to default");    //   Black (default)  |        Orange
+logger.Error("Database", "Connection failed.");                                 //   Light Green      |        Red
+logger.Info("NewSource", "Message from unregistered source");                   //   Black (default)  |        Black
 ```
 
 ### Log Levels
-
-Level	Description
-DEBUG	Detailed information for debugging
-INFO	General application flow
-WARN	Potential issue or unexpected condition
-ERROR	Recoverable error
-FATAL	Critical failure
+Level	Description                                        Color
+DEBUG	Detailed information for debugging                  Blue
+INFO	General application flow                            Black
+WARN	Potential issue or unexpected condition             Orange
+ERROR	Recoverable error                                   Red
+FATAL	Critical failure                                    Dark Red
 
 ### Thread Safety
 
-mLogger is designed to be thread-safe. Multiple threads can write logs concurrently without corrupting log output.
+mLogger and RichTextBoxSink are designed to be thread-safe. Multiple threads can write logs concurrently without corrupting log output.
 
 ### Running Unit Tests
 
