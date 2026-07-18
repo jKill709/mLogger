@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Jeremy Killinger
 
 using System;
+using System.Drawing;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -96,7 +97,7 @@ namespace mLogger
         private readonly object _lock = new();
         private string _appName;
         private bool _isInitialized;
-        private readonly List<ILogSink> _sinks = new();
+        private readonly List<LogSinkBase> _sinks = new();
 
         private Logger() { }
 
@@ -106,12 +107,12 @@ namespace mLogger
             _isInitialized = true;
         }
 
-        public void AddSink(ILogSink sink)
+        public void AddSink(LogSinkBase sink)
         {
             ArgumentNullException.ThrowIfNull(sink);
             _sinks.Add(sink);
         }
-        public void RemoveSink(ILogSink sink)
+        public void RemoveSink(LogSinkBase sink)
         {
             ArgumentNullException.ThrowIfNull(sink);
 
@@ -181,121 +182,5 @@ namespace mLogger
             _sinks.Clear();
         }
     }
-
-    /*Start of new version/
-    /// <summary>
-    /// Thread-safe singleton logger that writes messages to daily rotating log files.
-    /// </summary>
-    public class Logger
-    {
-        private static readonly Lazy<Logger> _instance = new(() => new Logger());
-        public static Logger Instance => _instance.Value;
-
-        private readonly object _lock = new();
-
-        private string _appName;
-        private string _logDirectory;
-        private string _currentDate;
-        private StreamWriter _writer;
-
-        private Logger() { }
-
-        /// <summary>
-        /// Initializes the logger and creates the log directory if needed.
-        /// Log files are named:
-        ///
-        ///     {AppName}_YYYY-MM-DD.log
-        /// </summary>
-        public void Initialize(string appName, string logDirectory)
-        {
-            _appName = appName;
-            _logDirectory = logDirectory;
-            Directory.CreateDirectory(_logDirectory);
-            _currentDate = "0000-00-00";
-            CurrentLogFileName();
-        }
-
-        /// <summary>
-        /// Opens a new log file if the calendar date has changed.
-        /// </summary>
-        private string CurrentLogFileName()
-        {
-            // If the date has changed since the last write, close the old file and open a new one
-            string today = DateTime.Now.ToString("yyyy-MM-dd");
-            if (today != _currentDate)
-            {
-                _writer?.Dispose();
-                _currentDate = today;
-                string filename = Path.Combine(_logDirectory, $"{_appName}_{_currentDate}.log");
-                _writer = new StreamWriter(filename, true, Encoding.UTF8);
-            }
-            return _currentDate;
-        }
-
-        /// <summary>
-        /// Formats a log entry as:
-        ///
-        /// [timestamp] [level] [source] message
-        /// </summary>
-        private string FormatEntry(LogLevel level, string source, string message)
-        {
-            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-            string levelName = level switch
-            {
-                LogLevel.DEBUG => "DBG",
-                LogLevel.INFO => "INF",
-                LogLevel.WARN => "WRN",
-                LogLevel.ERROR => "ERR",
-                LogLevel.FATAL => "FTL",
-                _ => "UNK"
-            };
-            return $"[{timestamp}] [{levelName}] [{source}] {message}";
-        }
-
-        /// <summary>
-        /// Writes a log entry.
-        /// Thread-safe.
-        /// </summary>
-        public void Log(LogLevel level, string source, string message)
-        {
-            lock (_lock)
-            {
-                // Ensure writes go to the correct daily log file.
-                CurrentLogFileName();
-
-                _writer.WriteLine(FormatEntry(level, source, message));
-
-                // Flush immediately to reduce risk of data loss.
-                _writer.Flush();
-            }
-        }
-
-        public void Debug(string source, string message) =>
-            Log(LogLevel.DEBUG, source, message);
-
-        public void Info(string source, string message) =>
-            Log(LogLevel.INFO, source, message);
-
-        public void Warn(string source, string message) =>
-            Log(LogLevel.WARN, source, message);
-
-        public void Error(string source, string message) =>
-            Log(LogLevel.ERROR, source, message);
-
-        public void Fatal(string source, string message) =>
-            Log(LogLevel.FATAL, source, message);
-
-        /// <summary>
-        /// Releases the current log file.
-        /// Should be called during application shutdown.
-        /// </summary>
-        public void Shutdown()
-        {
-            lock (_lock)
-            {
-                _writer?.Dispose();
-            }
-        }
-    }/*End of new version*/
     #endregion
 }

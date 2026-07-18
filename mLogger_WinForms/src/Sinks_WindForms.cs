@@ -86,32 +86,13 @@ namespace mLogger
         }
         public override void WriteHeading(LogEntry entry)
         {
-            //if (!ShouldWrite(entry.Source))
-            //    return;
-            //
-            //Char seperatorChar = '-';
-            //string line = LogFormatter.FormatOneLineText(entry);
-            //string innerPadding = new string(' ', 2);
-            //string partialSeperator = new string(seperatorChar, 6);
-            //string leadingPadding = new string(' ', line.Length - entry.Message.Length);
-            //string fullSeperator = new string(seperatorChar, entry.Message.Length + (innerPadding.Length * 2) + (partialSeperator.Length * 2));
-            //LogEntry firstLineEntry = new LogEntry { Timestamp = entry.Timestamp,
-            //                                          Level = entry.Level,
-            //                                          Source = entry.Source,
-            //                                          Message = fullSeperator };
-
-            //AppendLine(LogFormatter.FormatOneLineText(firstLineEntry));
-            //AppendLine(leadingPadding + partialSeperator + innerPadding + entry.Message + innerPadding + partialSeperator);
-            //AppendLine(leadingPadding + fullSeperator);
-
-
             if (!ShouldWrite(entry.Source))
                 return;
 
-            string Title = LogFormatter.FormatOneLineText(entry);
+            string Title = LogFormatter.FormatOneLineText(entry, true, true, true, false);
             Color TitleColor = GetColor(entry.Source);
 
-            string Message = LogFormatter.FormatOneLineText(entry) + Environment.NewLine;
+            string Message = LogFormatter.FormatOneLineText(entry, false, false, false, true);
             Color MessageColor = entry.Level switch
             {
                 LogLevel.DEBUG => Color.Blue,
@@ -124,8 +105,9 @@ namespace mLogger
 
             if (!_textBox.IsHandleCreated)
             {
-                _pending.Enqueue((Title, TitleColor, Color.Empty, FontStyle.Bold, (float?)null));
+                _pending.Enqueue((Title, _textBox.BackColor, TitleColor, FontStyle.Regular, (float?)null));
                 _pending.Enqueue((Message, MessageColor, Color.Empty, FontStyle.Bold, (float?)null));
+                _pending.Enqueue((Environment.NewLine, Color.Empty, Color.Empty, FontStyle.Bold, (float?)null));
                 if (_textBox.IsHandleCreated)
                 {
                     FlushPending();
@@ -133,8 +115,9 @@ namespace mLogger
                 return;
             }
 
-            AppendText(Title, TitleColor, Color.Empty, FontStyle.Regular, (float?)null);
-            AppendText(Message, MessageColor, Color.Empty, FontStyle.Regular, (float?)null);
+            AppendText(Title, _textBox.BackColor, TitleColor, FontStyle.Regular, (float?)null);
+            AppendText(Message, MessageColor, Color.Empty, FontStyle.Bold, (float?)null);
+            AppendText(Environment.NewLine, Color.Empty, Color.Empty, FontStyle.Bold, (float?)null);
         }
         public override void WriteSeperator(LogEntry entry)
         {

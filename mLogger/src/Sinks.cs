@@ -6,7 +6,6 @@ namespace mLogger
     #region Sinks and Interface
     public interface ILogSink // todo - add ': IDisposable'
     {
-
         void WriteLine(LogEntry entry);
         void WriteHeading(LogEntry entry);
         void WriteSeperator(LogEntry entry);
