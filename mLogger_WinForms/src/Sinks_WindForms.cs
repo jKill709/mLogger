@@ -4,24 +4,25 @@ using System.Collections.Concurrent;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+
+using jColorProviders;
+
 using static System.Windows.Forms.LinkLabel;
 
 namespace mLogger
 {
-    public class LogPattern
-    {
-        public Regex Regex { get; }
-        public Color? Color { get; }
-    }
     public class RichTextBoxSink : LogSinkBase
     {
-        private readonly RichTextBox _textBox; 
-        private readonly List<(Regex Pattern, Color Color)> _colorPatterns = new();
+        private readonly RichTextBox _textBox;
+        private readonly RegexColorProvider _colors;
+        //private readonly List<(Regex Pattern, Color Color)> _colorPatterns = new();
 
         private readonly ConcurrentQueue<(string Text, Color? ForeColor, Color? BackColor, FontStyle? Style, float? FontSize)> _pending = new();
 
         public RichTextBoxSink(RichTextBox textBox)
         {
+            _colors = new RegexColorProvider();
+
             _textBox = textBox ?? throw new ArgumentNullException(nameof(textBox));
 
             _textBox.HandleCreated += (_, _) => FlushPending();
@@ -29,7 +30,7 @@ namespace mLogger
 
         public void AddPattern(string pattern, Color color)
         {
-            _colorPatterns.Add((new Regex(pattern, RegexOptions.Compiled), color));
+            _colors.AddPattern(new Regex(pattern, RegexOptions.Compiled), color);
 
             base.AddPattern(pattern);
         }
@@ -37,25 +38,16 @@ namespace mLogger
         {
             Regex pattern = CreateSourceRegex(source, andModules);
             base.AddPattern(pattern);
-            _colorPatterns.Add((pattern, color));
+            _colors.AddPattern(pattern, color);
         }
-        private Color GetColor(string source)
-        {
-            foreach (var entry in _colorPatterns)
-            {
-                if (entry.Pattern.IsMatch(source))
-                    return entry.Color;
-            }
-
-            return Color.Black; // _textBox.ForeColor;
-        }
+                
         public override void WriteLine(LogEntry entry)
         {
             if (!ShouldWrite(entry.Source))
                 return;
 
             string Title = LogFormatter.FormatOneLineText(entry, true, true, true, false);
-            Color TitleColor = GetColor(entry.Source);
+            Color TitleColor = _colors.GetColor(entry.Source);
 
             string Message = LogFormatter.FormatOneLineText(entry, false, false, false, true);
             Color MessageColor = entry.Level switch
@@ -90,7 +82,7 @@ namespace mLogger
                 return;
 
             string Title = LogFormatter.FormatOneLineText(entry, true, true, true, false);
-            Color TitleColor = GetColor(entry.Source);
+            Color TitleColor = _colors.GetColor(entry.Source);
 
             string Message = LogFormatter.FormatOneLineText(entry, false, false, false, true);
             Color MessageColor = entry.Level switch
