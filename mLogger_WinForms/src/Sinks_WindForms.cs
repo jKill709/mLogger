@@ -14,14 +14,15 @@ namespace mLogger
     public class RichTextBoxSink : LogSinkBase
     {
         private readonly RichTextBox _textBox;
-        private readonly RegexColorProvider _colors;
+        private readonly RegexColorProvider _regexColors;
+        private readonly TextColorProvider _textColors;
         //private readonly List<(Regex Pattern, Color Color)> _colorPatterns = new();
 
         private readonly ConcurrentQueue<(string Text, Color? ForeColor, Color? BackColor, FontStyle? Style, float? FontSize)> _pending = new();
 
         public RichTextBoxSink(RichTextBox textBox)
         {
-            _colors = new RegexColorProvider();
+            _regexColors = new RegexColorProvider();
 
             _textBox = textBox ?? throw new ArgumentNullException(nameof(textBox));
 
@@ -30,13 +31,13 @@ namespace mLogger
 
         public void AddPattern(string pattern, Color color)
         {
-            _colors.AddPattern(new Regex(pattern, RegexOptions.Compiled), color);
+            _regexColors.AddPattern(new Regex(pattern, RegexOptions.Compiled), color);
 
             base.AddPattern(pattern);
         }
         public void RemovePattern(string pattern)
         {
-            _colors.RemovePattern(new Regex(pattern, RegexOptions.Compiled));
+            _regexColors.RemovePattern(new Regex(pattern, RegexOptions.Compiled));
 
             base.RemovePattern(pattern);
         }
@@ -44,13 +45,13 @@ namespace mLogger
         {
             Regex pattern = CreateSourceRegex(source, andModules);
             base.AddPattern(pattern);
-            _colors.AddPattern(pattern, color);
+            _regexColors.AddPattern(pattern, color);
         }
         public void RemoveSource(string source, bool andModules = true)
         {
             Regex pattern = CreateSourceRegex(source, andModules);
             base.RemovePattern(pattern);
-            _colors.RemovePattern(pattern);
+            _regexColors.RemovePattern(pattern);
         }
 
         public override void WriteLine(LogEntry entry)
@@ -59,7 +60,7 @@ namespace mLogger
                 return;
 
             string Title = LogFormatter.FormatOneLineText(entry, true, true, true, false);
-            Color TitleColor = _colors.GetColor(entry.Source);
+            Color TitleColor = _regexColors.GetColor(entry.Source);
 
             string Message = LogFormatter.FormatOneLineText(entry, false, false, false, true);
             Color MessageColor = entry.Level switch
@@ -94,7 +95,7 @@ namespace mLogger
                 return;
 
             string Title = LogFormatter.FormatOneLineText(entry, true, true, true, false);
-            Color TitleColor = _colors.GetColor(entry.Source);
+            Color TitleColor = _regexColors.GetColor(entry.Source);
 
             string Message = LogFormatter.FormatOneLineText(entry, false, false, false, true);
             Color MessageColor = entry.Level switch
@@ -109,7 +110,7 @@ namespace mLogger
 
             if (!_textBox.IsHandleCreated)
             {
-                _pending.Enqueue((Title, _textBox.BackColor, TitleColor, FontStyle.Regular, (float?)null));
+                _pending.Enqueue((Title, _textColors.GetColor(TitleColor), TitleColor, FontStyle.Regular, (float?)null));
                 _pending.Enqueue((Message, MessageColor, Color.Empty, FontStyle.Bold, (float?)null));
                 _pending.Enqueue((Environment.NewLine, Color.Empty, Color.Empty, FontStyle.Bold, (float?)null));
                 if (_textBox.IsHandleCreated)
@@ -119,7 +120,7 @@ namespace mLogger
                 return;
             }
 
-            AppendText(Title, _textBox.BackColor, TitleColor, FontStyle.Regular, (float?)null);
+            AppendText(Title, _textColors.GetColor(TitleColor), TitleColor, FontStyle.Regular, (float?)null);
             AppendText(Message, MessageColor, Color.Empty, FontStyle.Bold, (float?)null);
             AppendText(Environment.NewLine, Color.Empty, Color.Empty, FontStyle.Bold, (float?)null);
         }

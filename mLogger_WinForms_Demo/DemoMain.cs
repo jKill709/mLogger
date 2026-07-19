@@ -1,5 +1,6 @@
 using Microsoft.VisualBasic.ApplicationServices;
 using Microsoft.VisualBasic.Logging;
+using jColorProviders;
 using mLogger;
 using System.Configuration;
 using System.Net.Sockets;
@@ -94,9 +95,11 @@ namespace mLogger_WinForms_Demo
                 mainTBsink.AddSource(Source_Box.Text, false, dialog.Color);
 
                 Source_Box.Items.Add(Source_Box.Text);
+                TextColorProvider colors = new TextColorProvider();
 
                 ListViewItem item = new ListViewItem(Source_Box.Text)
                 {
+                    ForeColor = colors.GetColor(dialog.Color),
                     BackColor = dialog.Color
                 };
                 Sources_ListBox.Items.Add(item);
