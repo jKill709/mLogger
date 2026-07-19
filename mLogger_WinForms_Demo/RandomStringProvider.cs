@@ -10,6 +10,14 @@ namespace mLogger_WinForms_Demo
     {
         private readonly List<string> _strings = new();
 
+        public RandomStringProvider(string str)
+        {
+            _strings.Add(str);
+        }
+        public RandomStringProvider(IEnumerable<string> strings)
+        {
+            _strings.AddRange(strings);
+        }
         public void AddString(string str)
         {
             _strings.Add(str);
