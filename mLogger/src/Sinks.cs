@@ -22,9 +22,17 @@ namespace mLogger
         {
             _patterns.Add(pattern);
         }
+        public void RemovePattern(Regex pattern)
+        {
+            _patterns.Remove(pattern);
+        }
         public void AddPattern(string pattern)
         {
             _patterns.Add(new Regex(pattern, RegexOptions.Compiled));
+        }
+        public void RemovePattern(string pattern)
+        {
+            _patterns.RemoveAll(r => r.ToString() == pattern);
         }
         public void AddSource(string source, bool andModules = true)
         {
@@ -32,6 +40,13 @@ namespace mLogger
                 throw new ArgumentException("Source cannot be null or empty.", nameof(source));
 
             AddPattern(CreateSourceRegex(source, andModules));
+        }
+        public void RemoveSource(string source, bool andModules = true)
+        {
+            if (string.IsNullOrWhiteSpace(source))
+                throw new ArgumentException("Source cannot be null or empty.", nameof(source));
+            Regex patternToRemove = CreateSourceRegex(source, andModules);
+            RemovePattern(patternToRemove);
         }
         protected static Regex CreateSourceRegex(string source, bool andModules)
         {

@@ -34,13 +34,25 @@ namespace mLogger
 
             base.AddPattern(pattern);
         }
+        public void RemovePattern(string pattern)
+        {
+            _colors.RemovePattern(new Regex(pattern, RegexOptions.Compiled));
+
+            base.RemovePattern(pattern);
+        }
         public void AddSource(string source, bool andModules = true, Color color = default)
         {
             Regex pattern = CreateSourceRegex(source, andModules);
             base.AddPattern(pattern);
             _colors.AddPattern(pattern, color);
         }
-                
+        public void RemoveSource(string source, bool andModules = true)
+        {
+            Regex pattern = CreateSourceRegex(source, andModules);
+            base.RemovePattern(pattern);
+            _colors.RemovePattern(pattern);
+        }
+
         public override void WriteLine(LogEntry entry)
         {
             if (!ShouldWrite(entry.Source))
