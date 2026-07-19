@@ -8,5 +8,6 @@
   <Project Path="mLogger/mLogger.csproj" />
   <Project Path="mLogger_UnitTests/mLogger_UnitTests.csproj" />
   <Project Path="mLogger_WinForms/mLogger_WinForms.csproj" Id="251bf6c5-27a5-4c8d-aa46-2c21ee0059ac" />
+  <Project Path="mLogger_WinForms_Demo/mLogger_WinForms_Demo.csproj" Id="bf279122-5adc-44e3-b86e-2567b725f95f" />
   <Project Path="mLogger_Winforms_UnitTests/mLogger_Winforms_UnitTests.csproj" Id="27c39932-eb8a-4ed9-895c-8b0739561748" />
 </Solution>
