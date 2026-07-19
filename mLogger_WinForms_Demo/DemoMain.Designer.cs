@@ -50,6 +50,7 @@
             MemorySink_Button = new Button();
             Sources_ListBox = new ListView();
             Sources_Label = new Label();
+            RichTextWindow_Button = new Button();
             panel1.SuspendLayout();
             LogLevel_Box.SuspendLayout();
             SuspendLayout();
@@ -246,6 +247,7 @@
             TextFileSink_Button.TabIndex = 2;
             TextFileSink_Button.Text = "Text File";
             TextFileSink_Button.UseVisualStyleBackColor = true;
+            TextFileSink_Button.Click += TextFileSink_Button_Click;
             // 
             // ConsoleSink_Button
             // 
@@ -255,6 +257,7 @@
             ConsoleSink_Button.TabIndex = 3;
             ConsoleSink_Button.Text = "Console";
             ConsoleSink_Button.UseVisualStyleBackColor = true;
+            ConsoleSink_Button.Click += ConsoleSink_Button_Click;
             // 
             // MemorySink_Button
             // 
@@ -264,6 +267,7 @@
             MemorySink_Button.TabIndex = 4;
             MemorySink_Button.Text = "Memory";
             MemorySink_Button.UseVisualStyleBackColor = true;
+            MemorySink_Button.Click += MemorySink_Button_Click;
             // 
             // Sources_ListBox
             // 
@@ -283,11 +287,22 @@
             Sources_Label.TabIndex = 6;
             Sources_Label.Text = "Sources";
             // 
+            // RichTextWindow_Button
+            // 
+            RichTextWindow_Button.Location = new Point(12, 425);
+            RichTextWindow_Button.Name = "RichTextWindow_Button";
+            RichTextWindow_Button.Size = new Size(124, 23);
+            RichTextWindow_Button.TabIndex = 7;
+            RichTextWindow_Button.Text = "RichText Window";
+            RichTextWindow_Button.UseVisualStyleBackColor = true;
+            RichTextWindow_Button.Click += RichTextWindow_Button_Click;
+            // 
             // DemoMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 497);
+            Controls.Add(RichTextWindow_Button);
             Controls.Add(Sources_Label);
             Controls.Add(Sources_ListBox);
             Controls.Add(MemorySink_Button);
@@ -330,5 +345,6 @@
         private Button MemorySink_Button;
         private ListView Sources_ListBox;
         private Label Sources_Label;
+        private Button RichTextWindow_Button;
     }
 }

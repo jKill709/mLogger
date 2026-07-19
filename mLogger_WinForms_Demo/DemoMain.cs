@@ -1,10 +1,11 @@
+using jColorProviders;
 using Microsoft.VisualBasic.ApplicationServices;
 using Microsoft.VisualBasic.Logging;
-using jColorProviders;
 using mLogger;
 using System.Configuration;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Policy;
 using static System.Net.WebRequestMethods;
 using static System.Windows.Forms.AxHost;
@@ -17,7 +18,15 @@ namespace mLogger_WinForms_Demo
     {
         Logger logger = null;
 
-        RichTextBoxSink mainTBsink;
+        RichTextBoxSink _mainTBsink;
+        TextFileSink _textFileSink;
+        ConsoleSink _consoleSink;
+        InMemorySink _memorySink;
+        RichTextBoxWindowSink _richTextBoxWindowSink;
+        private bool _textFileAllocated = false;
+        private bool _memoryAllocated = false;
+        private bool _consoleAllocated = false;
+        private bool _richTextBoxWindowAllocated = false;
 
         RandomStringProvider rspMessages = new RandomStringProvider(new[] { "Application started successfully.",
                                                                             "User authentication completed for user 'admin'.",
@@ -70,8 +79,8 @@ namespace mLogger_WinForms_Demo
             logger = Logger.Instance;
             logger.Initialize("Demo");
 
-            mainTBsink = new RichTextBoxSink(MainTBsink_Box);
-            logger.AddSink(mainTBsink);
+            _mainTBsink = new RichTextBoxSink(MainTBsink_Box);
+            logger.AddSink(_mainTBsink);
         }
 
         private async void AddSource()
@@ -92,7 +101,7 @@ namespace mLogger_WinForms_Demo
                 if (dialog.ShowDialog() != DialogResult.OK)
                     return;
 
-                mainTBsink.AddSource(Source_Box.Text, false, dialog.Color);
+                _mainTBsink.AddSource(Source_Box.Text, false, dialog.Color);
 
                 Source_Box.Items.Add(Source_Box.Text);
                 TextColorProvider colors = new TextColorProvider();
@@ -119,7 +128,7 @@ namespace mLogger_WinForms_Demo
             }
 
             // Remove from the sink
-            mainTBsink.RemoveSource(Source_Box.Text, false);
+            _mainTBsink.RemoveSource(Source_Box.Text, false);
 
             // Remove from the ComboBox
             Source_Box.Items.Remove(Source_Box.Text);
@@ -173,7 +182,6 @@ namespace mLogger_WinForms_Demo
         {
             AddSource();
         }
-
         private void RemoveSource_Button_Click(object sender, EventArgs e)
         {
             RemoveSource();  // Did not remove the first item, only the second.  Needs debug.
@@ -224,6 +232,65 @@ namespace mLogger_WinForms_Demo
 
 
             logger.Log(level, Source_Box.Text, Message_Box.Text);
+        }
+        private void ConsoleSink_Button_Click(object sender, EventArgs e)
+        {
+            if (!_consoleAllocated)
+            {
+                ConsoleManager.AllocConsole();
+                _consoleAllocated = true;
+            }
+
+            if (_consoleSink == null)
+            {
+                _consoleSink = new ConsoleSink();
+                logger.AddSink(_consoleSink);
+            }
+        }
+
+        internal static class ConsoleManager
+        {
+            [DllImport("kernel32.dll")]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool AllocConsole();
+
+            [DllImport("kernel32.dll")]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool FreeConsole();
+        }
+
+        private void MemorySink_Button_Click(object sender, EventArgs e)
+        {
+            if (!_memoryAllocated)
+            {
+                _memorySink = new InMemorySink();
+
+                logger.AddSink(_memorySink);
+            }
+            MessageBox.Show("InMemborySink running.  Use debug features to inspect contents.");
+        }
+        private void TextFileSink_Button_Click(object sender, EventArgs e)
+        {
+            if (!_textFileAllocated)
+            {
+                _textFileSink = new TextFileSink(Path.GetTempPath(), "Demo");
+
+                logger.AddSink(_textFileSink);
+                _textFileAllocated = true;
+            }
+
+            MessageBox.Show("Saving log to file: " + _textFileSink.FilePath);
+        }
+        private void RichTextWindow_Button_Click(object sender, EventArgs e)
+        {
+            if (!_richTextBoxWindowAllocated)
+            {
+                _richTextBoxWindowSink = new RichTextBoxWindowSink();
+                logger.AddSink( _richTextBoxWindowSink);
+                _richTextBoxWindowSink.Show();
+
+                _richTextBoxWindowAllocated = true;
+            }
         }
     }
 }

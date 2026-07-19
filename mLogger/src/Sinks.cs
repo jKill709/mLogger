@@ -89,6 +89,8 @@ namespace mLogger
         private string _fileDirectory;
         private StreamWriter _writer;
         private string _currentDate = "0000-00-00";
+        public string FilePath { get { return Path.Combine(_fileDirectory, _fileName); } }
+
 
         public TextFileSink(string fileDirectory, string appName, string fileExtension = ".txt")
         {
