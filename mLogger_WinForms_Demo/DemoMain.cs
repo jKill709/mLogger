@@ -1,4 +1,14 @@
+using Microsoft.VisualBasic.ApplicationServices;
+using Microsoft.VisualBasic.Logging;
 using mLogger;
+using System.Configuration;
+using System.Net.Sockets;
+using System.Reflection;
+using System.Security.Policy;
+using static System.Net.WebRequestMethods;
+using static System.Windows.Forms.AxHost;
+using static System.Windows.Forms.LinkLabel;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace mLogger_WinForms_Demo
 {
@@ -8,32 +18,71 @@ namespace mLogger_WinForms_Demo
 
         RichTextBoxSink mainTBsink;
 
+        RandomStringProvider rspMessages = new RandomStringProvider(new[] { "Application started successfully.",
+                                                                            "User authentication completed for user 'admin'.",
+                                                                            "Unable to connect to remote server. Retrying connection attempt 3 of 5.",
+                                                                            "Database connection failed. Exception: Timeout expired after 30000ms.",
+                                                                            "Processing packet ID=0x4A2F, Length=128 bytes, Source=192.168.1.42",
+                                                                            "System integrity check failed. Shutting down immediately.",
+                                                                            "The quick brown fox jumps over the lazy dog.",
+                                                                            "Unicode test: Café résumé naïve — 中文测试 — 日本語テスト — 🚀🔥✅",
+                                                                            "Empty-like test with spaces:      ",
+                                                                            "Very long message test: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum vulputate, nisl at tincidunt tincidunt, justo sapien facilisis erat, sed malesuada neque odio non libero. Integer faucibus consequat turpis,a feugiat metus viverra at",
+                                                                            "Threading test: Message generated from worker thread ID 17 while UI thread is active.",
+                                                                            "Shutdown test: Application shutdown requested.Flushing remaining log messages." });
+        RandomStringProvider rspSourcves = new RandomStringProvider(new[] { "Camera",
+                                                                            "CameraManager",
+                                                                            "Camera.Capture",
+                                                                            "Camera.Calibration",
+                                                                            "Camera.Calibration.Charuco",
+                                                                            "Logger",
+                                                                            "Logger.FileSink",
+                                                                            "Logger.ConsoleSink",
+                                                                            "Network",
+                                                                            "Network.MQTT",
+                                                                            "Network.MQTT.Connection",
+                                                                            "Database",
+                                                                            "Database.SQL.QueryProcessor",
+                                                                            "UI.MainWindow",
+                                                                            "UI.SettingsDialog",
+                                                                            "WorkerThread",
+                                                                            "BackgroundWorker",
+                                                                            "SystemMonitor",
+                                                                            "Hardware.GPIO",
+                                                                            "Hardware.GPIO.PiCamera",
+                                                                            "Test.Source",
+                                                                            "UnitTest.LoggerTests",
+                                                                            "DEBUG",
+                                                                            "ERROR_HANDLER",
+                                                                            "FatalExceptionHandler",
+                                                                            "Startup",
+                                                                            "Shutdown",
+                                                                            "Module_01",
+                                                                            "Module_02.Sensor",
+                                                                            "User.Authentication",
+                                                                            "User.Authentication.TokenValidator" });
+
         public DemoMain()
         {
             InitializeComponent();
 
             logger = Logger.Instance;
+            logger.Initialize("Demo");
 
             mainTBsink = new RichTextBoxSink(MainTBsink_Box);
+            logger.AddSink(mainTBsink);
         }
 
         private async void AddSource()
         {
+            List<Control> controls = new List<Control>();
+
             if (string.IsNullOrWhiteSpace(Source_Box.Text))
             {
-                Color previousTB = Source_Box.BackColor;
-                Color previousButton = AddSource_Button.BackColor;
+                controls.Add(Source_Box);
+                controls.Add(AddSource_Button);
 
-                Source_Box.BackColor = Color.Red;
-                AddSource_Button.BackColor = Color.Red;
-                await Task.Delay(200);
-
-                Source_Box.BackColor = Color.Pink;
-                Source_Box.ForeColor = previousTB;
-                await Task.Delay(50);
-
-                Source_Box.BackColor = previousTB;
-                Source_Box.ForeColor = previousButton;
+                FlashControls(controls);
                 return;
             }
 
@@ -53,23 +102,16 @@ namespace mLogger_WinForms_Demo
                 Sources_ListBox.Items.Add(item);
             }
         }
-        private async void RemoveSource()
+        private void RemoveSource()
         {
+            List<Control> controls = new List<Control>();
+
             if (string.IsNullOrWhiteSpace(Source_Box.Text))
             {
-                Color previousTB = Source_Box.BackColor;
-                Color previousButton = RemoveSource_Button.BackColor;
+                controls.Add(Source_Box);
+                controls.Add(RemoveSource_Button);
 
-                Source_Box.BackColor = Color.Red;
-                RemoveSource_Button.BackColor = Color.Red;
-                await Task.Delay(200);
-
-                Source_Box.BackColor = Color.Pink;
-                RemoveSource_Button.BackColor = Color.Pink;
-                await Task.Delay(50);
-
-                Source_Box.BackColor = previousTB;
-                RemoveSource_Button.BackColor = previousButton;
+                FlashControls(controls);
                 return;
             }
 
@@ -88,7 +130,42 @@ namespace mLogger_WinForms_Demo
                     break;
                 }
             }
+
+            Source_Box.Text = "";
         }
+        private async void FlashControls(List<Control> controls)
+        {
+
+            ChangeControlColor(controls, Color.Pink);
+            await Task.Delay(100);
+
+            ChangeControlColor(controls, Color.Red);
+            await Task.Delay(200);
+
+            ChangeControlColor(controls, Color.Pink);
+            await Task.Delay(100);
+
+            ChangeControlColor(controls, null);
+            return;
+        }
+        private void ChangeControlColor(List<Control> controls, Color? color)
+        {
+            foreach (Control control in controls)
+            {
+                if (color == null)
+                {
+                    if (control is System.Windows.Forms.TextBox || control is System.Windows.Forms.ComboBox)
+                        control.BackColor = SystemColors.Window;
+                    else
+                        control.BackColor = SystemColors.Control;
+                }
+                else
+                {
+                    control.BackColor = (Color)color;
+                }
+            }
+        }
+
         private void AddSource_Button_Click(object sender, EventArgs e)
         {
             AddSource();
@@ -97,6 +174,53 @@ namespace mLogger_WinForms_Demo
         private void RemoveSource_Button_Click(object sender, EventArgs e)
         {
             RemoveSource();  // Did not remove the first item, only the second.  Needs debug.
+        }
+        private void RandomMessage_Button_Click(object sender, EventArgs e)
+        {
+            Message_Box.Text = rspMessages.GetString();
+        }
+        private void RandomSource_Button_Click(object sender, EventArgs e)
+        {
+            Source_Box.Text = rspSourcves.GetString();
+        }
+        private void LogEntry_Button_Click(object sender, EventArgs e)
+        {
+            List<Control> controls = new List<Control>();
+
+            if (string.IsNullOrWhiteSpace(Source_Box.Text))
+                controls.Add(Source_Box);
+            if (string.IsNullOrWhiteSpace(Message_Box.Text))
+                controls.Add(Message_Box);
+            if (!FATAL_Option.Checked && !ERR_Option.Checked && !WARN_Option.Checked && !INFO_Option.Checked && !Debug_Option.Checked)
+                controls.AddRange(new Control[] { FATAL_Option,
+                                                  ERR_Option,
+                                                  WARN_Option,
+                                                  INFO_Option,
+                                                  Debug_Option });
+
+            if (controls.Count > 0)
+            {
+                FlashControls(controls);
+                return;
+            }
+
+
+            LogLevel level;
+            if (FATAL_Option.Checked)
+                level = LogLevel.FATAL;
+            else if (ERR_Option.Checked)
+                level = LogLevel.ERROR;
+            else if (WARN_Option.Checked)
+                level = LogLevel.WARN;
+            else if (INFO_Option.Checked)
+                level = LogLevel.INFO;
+            else if (Debug_Option.Checked)
+                level = LogLevel.DEBUG;
+            else
+                throw new ArgumentNullException(nameof(LogLevel_Box));
+
+
+            logger.Log(level, Source_Box.Text, Message_Box.Text);
         }
     }
 }

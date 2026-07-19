@@ -39,7 +39,7 @@
             Source_Label = new Label();
             LogLevel_Box = new GroupBox();
             FATAL_Option = new RadioButton();
-            WARN__Option = new RadioButton();
+            ERR_Option = new RadioButton();
             WARN_Option = new RadioButton();
             INFO_Option = new RadioButton();
             Debug_Option = new RadioButton();
@@ -109,6 +109,7 @@
             LogEntry_Button.TabIndex = 8;
             LogEntry_Button.Text = "Log Entry";
             LogEntry_Button.UseVisualStyleBackColor = true;
+            LogEntry_Button.Click += LogEntry_Button_Click;
             // 
             // Message_Label
             // 
@@ -129,6 +130,7 @@
             RandomSource_Button.TabIndex = 5;
             RandomSource_Button.Text = "RND";
             RandomSource_Button.UseVisualStyleBackColor = true;
+            RandomSource_Button.Click += RandomSource_Button_Click;
             // 
             // RandomMessage_Button
             // 
@@ -139,6 +141,7 @@
             RandomMessage_Button.TabIndex = 4;
             RandomMessage_Button.Text = "RND";
             RandomMessage_Button.UseVisualStyleBackColor = true;
+            RandomMessage_Button.Click += RandomMessage_Button_Click;
             // 
             // Source_Label
             // 
@@ -153,7 +156,7 @@
             // LogLevel_Box
             // 
             LogLevel_Box.Controls.Add(FATAL_Option);
-            LogLevel_Box.Controls.Add(WARN__Option);
+            LogLevel_Box.Controls.Add(ERR_Option);
             LogLevel_Box.Controls.Add(WARN_Option);
             LogLevel_Box.Controls.Add(INFO_Option);
             LogLevel_Box.Controls.Add(Debug_Option);
@@ -175,16 +178,16 @@
             FATAL_Option.Text = "FATAL";
             FATAL_Option.UseVisualStyleBackColor = true;
             // 
-            // WARN__Option
+            // ERR_Option
             // 
-            WARN__Option.AutoSize = true;
-            WARN__Option.Location = new Point(106, 22);
-            WARN__Option.Name = "WARN__Option";
-            WARN__Option.Size = new Size(60, 19);
-            WARN__Option.TabIndex = 3;
-            WARN__Option.TabStop = true;
-            WARN__Option.Text = "WARN";
-            WARN__Option.UseVisualStyleBackColor = true;
+            ERR_Option.AutoSize = true;
+            ERR_Option.Location = new Point(106, 22);
+            ERR_Option.Name = "ERR_Option";
+            ERR_Option.Size = new Size(45, 19);
+            ERR_Option.TabIndex = 3;
+            ERR_Option.TabStop = true;
+            ERR_Option.Text = "ERR";
+            ERR_Option.UseVisualStyleBackColor = true;
             // 
             // WARN_Option
             // 
@@ -311,7 +314,7 @@
         private GroupBox LogLevel_Box;
         private RadioButton Debug_Option;
         private RadioButton FATAL_Option;
-        private RadioButton WARN__Option;
+        private RadioButton ERR_Option;
         private RadioButton WARN_Option;
         private RadioButton INFO_Option;
         private Label Message_Label;
