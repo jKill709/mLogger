@@ -51,6 +51,8 @@
             Sources_ListBox = new ListView();
             Sources_Label = new Label();
             RichTextWindow_Button = new Button();
+            Whitelist_Box = new CheckBox();
+            Blacklist_Box = new CheckBox();
             panel1.SuspendLayout();
             LogLevel_Box.SuspendLayout();
             SuspendLayout();
@@ -61,7 +63,6 @@
             MainTBsink_Box.Name = "MainTBsink_Box";
             MainTBsink_Box.Size = new Size(776, 319);
             MainTBsink_Box.TabIndex = 0;
-            MainTBsink_Box.Text = "";
             // 
             // panel1
             // 
@@ -271,9 +272,9 @@
             // 
             // Sources_ListBox
             // 
-            Sources_ListBox.Location = new Point(534, 355);
+            Sources_ListBox.Location = new Point(545, 372);
             Sources_ListBox.Name = "Sources_ListBox";
-            Sources_ListBox.Size = new Size(254, 130);
+            Sources_ListBox.Size = new Size(254, 113);
             Sources_ListBox.TabIndex = 5;
             Sources_ListBox.UseCompatibleStateImageBehavior = false;
             Sources_ListBox.View = View.List;
@@ -297,11 +298,35 @@
             RichTextWindow_Button.UseVisualStyleBackColor = true;
             RichTextWindow_Button.Click += RichTextWindow_Button_Click;
             // 
+            // Whitelist_Box
+            // 
+            Whitelist_Box.AutoSize = true;
+            Whitelist_Box.Location = new Point(545, 351);
+            Whitelist_Box.Name = "Whitelist_Box";
+            Whitelist_Box.Size = new Size(72, 19);
+            Whitelist_Box.TabIndex = 8;
+            Whitelist_Box.Text = "Whitelist";
+            Whitelist_Box.UseVisualStyleBackColor = true;
+            Whitelist_Box.CheckedChanged += Whitelist_Box_CheckedChanged;
+            // 
+            // Blacklist_Box
+            // 
+            Blacklist_Box.AutoSize = true;
+            Blacklist_Box.Location = new Point(633, 351);
+            Blacklist_Box.Name = "Blacklist_Box";
+            Blacklist_Box.Size = new Size(69, 19);
+            Blacklist_Box.TabIndex = 9;
+            Blacklist_Box.Text = "Blacklist";
+            Blacklist_Box.UseVisualStyleBackColor = true;
+            Blacklist_Box.CheckedChanged += Blacklist_Box_CheckedChanged;
+            // 
             // DemoMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 497);
+            Controls.Add(Blacklist_Box);
+            Controls.Add(Whitelist_Box);
             Controls.Add(RichTextWindow_Button);
             Controls.Add(Sources_Label);
             Controls.Add(Sources_ListBox);
@@ -346,5 +371,7 @@
         private ListView Sources_ListBox;
         private Label Sources_Label;
         private Button RichTextWindow_Button;
+        private CheckBox Whitelist_Box;
+        private CheckBox Blacklist_Box;
     }
 }

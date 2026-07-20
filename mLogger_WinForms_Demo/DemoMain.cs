@@ -19,14 +19,19 @@ namespace mLogger_WinForms_Demo
         Logger logger = null;
 
         RichTextBoxSink _mainTBsink;
-        TextFileSink _textFileSink;
-        ConsoleSink _consoleSink;
-        InMemorySink _memorySink;
-        RichTextBoxWindowSink _richTextBoxWindowSink;
+        TextFileSink? _textFileSink;
+        ConsoleSink? _consoleSink;
+        InMemorySink? _memorySink;
+        RichTextBoxWindowSink? _richTextBoxWindowSink;
         private bool _textFileAllocated = false;
         private bool _memoryAllocated = false;
         private bool _consoleAllocated = false;
         private bool _richTextBoxWindowAllocated = false;
+
+        List<LogSinkBase> _activeSinks;
+
+        FixedHashColorProvider sourceColors = new FixedHashColorProvider();
+        TextColorProvider textColors = new TextColorProvider();
 
         RandomStringProvider rspMessages = new RandomStringProvider(new[] { "Application started successfully.",
                                                                             "User authentication completed for user 'admin'.",
@@ -79,8 +84,15 @@ namespace mLogger_WinForms_Demo
             logger = Logger.Instance;
             logger.Initialize("Demo");
 
+            _activeSinks = new List<LogSinkBase>();
+
             _mainTBsink = new RichTextBoxSink(MainTBsink_Box);
             logger.AddSink(_mainTBsink);
+            _activeSinks.Add(_mainTBsink);
+
+
+            logger.LogHeading(LogLevel.INFO, "Demo", "Welcome to the mLogger Demo");
+            logger.Log(LogLevel.INFO, "Demo", "You may enter log entries, add sources or experiement with various sinks.");
         }
 
         private async void AddSource()
@@ -95,24 +107,20 @@ namespace mLogger_WinForms_Demo
                 FlashControls(controls);
                 return;
             }
+                        
+            Color color = sourceColors.GetColor(Source_Box.Text);
+            foreach (LogSinkBase sink in _activeSinks)
+                sink.AddSource(Source_Box.Text, false);
 
-            using (ColorDialog dialog = new ColorDialog())
+            Source_Box.Items.Add(Source_Box.Text);
+
+            ListViewItem item = new ListViewItem(Source_Box.Text)
             {
-                if (dialog.ShowDialog() != DialogResult.OK)
-                    return;
-
-                _mainTBsink.AddSource(Source_Box.Text, false, dialog.Color);
-
-                Source_Box.Items.Add(Source_Box.Text);
-                TextColorProvider colors = new TextColorProvider();
-
-                ListViewItem item = new ListViewItem(Source_Box.Text)
-                {
-                    ForeColor = colors.GetColor(dialog.Color),
-                    BackColor = dialog.Color
-                };
-                Sources_ListBox.Items.Add(item);
-            }
+                ForeColor = textColors.GetColor(color),
+                BackColor = color
+            };
+            Sources_ListBox.Items.Add(item);
+            
         }
         private void RemoveSource()
         {
@@ -245,6 +253,7 @@ namespace mLogger_WinForms_Demo
             {
                 _consoleSink = new ConsoleSink();
                 logger.AddSink(_consoleSink);
+                _activeSinks.Add(_mainTBsink);
             }
         }
 
@@ -266,6 +275,7 @@ namespace mLogger_WinForms_Demo
                 _memorySink = new InMemorySink();
 
                 logger.AddSink(_memorySink);
+                _activeSinks.Add(_mainTBsink);
             }
             MessageBox.Show("InMemborySink running.  Use debug features to inspect contents.");
         }
@@ -276,6 +286,7 @@ namespace mLogger_WinForms_Demo
                 _textFileSink = new TextFileSink(Path.GetTempPath(), "Demo");
 
                 logger.AddSink(_textFileSink);
+                _activeSinks.Add(_mainTBsink);
                 _textFileAllocated = true;
             }
 
@@ -286,10 +297,53 @@ namespace mLogger_WinForms_Demo
             if (!_richTextBoxWindowAllocated)
             {
                 _richTextBoxWindowSink = new RichTextBoxWindowSink();
-                logger.AddSink( _richTextBoxWindowSink);
+                logger.AddSink(_richTextBoxWindowSink);
+                _activeSinks.Add(_mainTBsink);
                 _richTextBoxWindowSink.Show();
 
                 _richTextBoxWindowAllocated = true;
+            }
+        }
+
+        private void Whitelist_Box_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Whitelist_Box.Checked)
+            {
+                Blacklist_Box.Checked = false;
+
+                foreach (LogSinkBase sink in _activeSinks)
+                {
+                    sink.useList = true;
+                    sink.isBlacklist = false;
+                }
+            }
+            else
+            {
+                foreach (LogSinkBase sink in _activeSinks)
+                {
+                    sink.useList = false;
+                }
+            }
+        }
+
+        private void Blacklist_Box_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Blacklist_Box.Checked)
+            {
+                Whitelist_Box.Checked = false;
+
+                foreach (LogSinkBase sink in _activeSinks)
+                {
+                    sink.useList = true;
+                    sink.isBlacklist = true;
+                }
+            }
+            else
+            {
+                foreach (LogSinkBase sink in _activeSinks)
+                {
+                    sink.useList = false;
+                }
             }
         }
     }

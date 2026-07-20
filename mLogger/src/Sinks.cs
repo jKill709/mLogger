@@ -15,24 +15,24 @@ namespace mLogger
     public abstract class LogSinkBase : ILogSink
     {
         protected readonly List<Regex> _patterns = new();
-        
-        public bool IsBlacklist { get; set; } = true;
+
+        public bool isBlacklist { get; set; } = true;
         public bool useList { get; set; } = false;
+
+        public LogSinkBase() { }
+        protected LogSinkBase(LogSinkBase other)
+        {
+            isBlacklist = other.isBlacklist;
+            useList = other.useList;
+            _patterns.AddRange(other._patterns);
+        }
         public void AddPattern(Regex pattern)
         {
             _patterns.Add(pattern);
         }
-        public void RemovePattern(Regex pattern)
-        {
-            _patterns.Remove(pattern);
-        }
         public void AddPattern(string pattern)
         {
             _patterns.Add(new Regex(pattern, RegexOptions.Compiled));
-        }
-        public void RemovePattern(string pattern)
-        {
-            _patterns.RemoveAll(r => r.ToString() == pattern);
         }
         public void AddSource(string source, bool andModules = true)
         {
@@ -40,6 +40,14 @@ namespace mLogger
                 throw new ArgumentException("Source cannot be null or empty.", nameof(source));
 
             AddPattern(CreateSourceRegex(source, andModules));
+        }
+        public void RemovePattern(Regex pattern)
+        {
+            _patterns.Remove(pattern);
+        }
+        public void RemovePattern(string pattern)
+        {
+            _patterns.RemoveAll(r => r.ToString() == pattern);
         }
         public void RemoveSource(string source, bool andModules = true)
         {
@@ -60,12 +68,11 @@ namespace mLogger
         {
             return _patterns.Any(r => r.IsMatch(source));
         }
-
         protected bool ShouldWrite(string source)
         {
             if (useList)
             {
-                return IsBlacklist ? !IsListed(source) : IsListed(source);
+                return isBlacklist ? !IsListed(source) : IsListed(source);
             }
             else
             {
@@ -76,6 +83,22 @@ namespace mLogger
         public abstract void WriteLine(LogEntry entry);
         public abstract void WriteHeading(LogEntry entry);
         public abstract void WriteSeperator(LogEntry entry);
+
+        //public void CopyTo(LogSinkBase destination)
+        //{
+        //    CopyBase(destination);
+
+        //    if (destination.GetType() == GetType())
+        //        CopyDerived(destination);
+        //}
+        //protected virtual void CopyBase(LogSinkBase destination)
+        //{
+        //    destination.isBlacklist = isBlacklist;
+        //    destination.useList = useList;
+        //}
+        //protected virtual void CopyDerived(LogSinkBase destination)
+        //{
+        //}
         public abstract void ResetForTesting();
         public abstract void Shutdown();
     }
@@ -84,14 +107,19 @@ namespace mLogger
         private readonly object _lock = new();
 
         private string _appName;
-        private string _fileExtention;
+        private string _fileExtension;
         private string _fileName;
         private string _fileDirectory;
         private StreamWriter _writer;
         private string _currentDate = "0000-00-00";
         public string FilePath { get { return Path.Combine(_fileDirectory, _fileName); } }
 
-
+        public TextFileSink(LogSinkBase other) : base(other)
+        {
+            // If it's really a TextFileSink, copy the App Name
+            if (other is TextFileSink tfs)
+                _appName = tfs._appName;
+        }
         public TextFileSink(string fileDirectory, string appName, string fileExtension = ".txt")
         {
             ArgumentNullException.ThrowIfNull(fileDirectory);
@@ -100,7 +128,7 @@ namespace mLogger
 
             _fileDirectory = fileDirectory;
             _appName = appName;
-            _fileExtention = fileExtension;
+            _fileExtension = fileExtension;
             NewLogFileIfNeeded();
         }
         ~TextFileSink()
@@ -195,7 +223,7 @@ namespace mLogger
                 {
                     _writer?.Dispose();
                     _currentDate = today;
-                    _fileName = _appName + "_" + today + _fileExtention;
+                    _fileName = _appName + "_" + today + _fileExtension;
                     _writer = new StreamWriter(Path.Combine(_fileDirectory, _fileName), true, Encoding.UTF8);
                 }
 
@@ -205,6 +233,8 @@ namespace mLogger
     }
     public class ConsoleSink : LogSinkBase
     {
+        public ConsoleSink() { }
+        public ConsoleSink(LogSinkBase other) : base(other) { }
         public override void WriteLine(LogEntry entry)
         {
             if (!ShouldWrite(entry.Source))
@@ -258,6 +288,8 @@ namespace mLogger
         private readonly List<string> _inMemoryLogs = new();
         public IReadOnlyList<string> Logs => _inMemoryLogs;
 
+        public InMemorySink() { }
+        public InMemorySink(LogSinkBase other) : base(other) { }
         public override void WriteLine(LogEntry entry)
         {
             if (!ShouldWrite(entry.Source))

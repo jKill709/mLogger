@@ -133,7 +133,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = true;
+        _memorySink.isBlacklist = true;
         _memorySink.AddPattern("^Blocked$");
 
         Logger.Instance.Info("Allowed", "Hello");
@@ -147,7 +147,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = true;
+        _memorySink.isBlacklist = true;
         _memorySink.AddPattern("^Blocked$");
 
         Logger.Instance.Info("Blocked", "Hello");
@@ -161,7 +161,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = false;
+        _memorySink.isBlacklist = false;
         _memorySink.AddPattern("^Allowed$");
 
         Logger.Instance.Info("Blocked", "Hello");
@@ -175,7 +175,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = false;
+        _memorySink.isBlacklist = false;
         _memorySink.AddPattern("^Allowed$");
 
         Logger.Instance.Info("Allowed", "Hello");
@@ -189,7 +189,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = true;
+        _memorySink.isBlacklist = true;
         _memorySink.AddSource("Blocked", false);
 
         Logger.Instance.Info("Allowed", "Hello");
@@ -203,7 +203,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = true;
+        _memorySink.isBlacklist = true;
         _memorySink.AddSource("Blocked", false);
 
         Logger.Instance.Info("Blocked", "Hello");
@@ -217,7 +217,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = false;
+        _memorySink.isBlacklist = false;
         _memorySink.AddSource("Allowed", false);
 
         Logger.Instance.Info("Blocked", "Hello");
@@ -231,7 +231,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = false;
+        _memorySink.isBlacklist = false;
         _memorySink.AddSource("Allowed", false);
 
         Logger.Instance.Info("Allowed", "Hello");
@@ -245,7 +245,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = true;
+        _memorySink.isBlacklist = true;
         _memorySink.AddSource("Blocked", true);
 
         Logger.Instance.Info("Allowed_Module", "Hello");
@@ -259,7 +259,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = true;
+        _memorySink.isBlacklist = true;
         _memorySink.AddSource("Blocked", true);
 
         Logger.Instance.Info("Blocked_Module", "Hello");
@@ -273,7 +273,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = false;
+        _memorySink.isBlacklist = false;
         _memorySink.AddSource("Allowed", true);
 
         Logger.Instance.Info("Blocked_Module", "Hello");
@@ -287,7 +287,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = false;
+        _memorySink.isBlacklist = false;
         _memorySink.AddSource("Allowed", true);
 
         Logger.Instance.Info("Allowed_Module", "Hello");
@@ -304,7 +304,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = true;
+        _memorySink.isBlacklist = true;
         _memorySink.AddSource(blocked, true);
 
         Logger.Instance.Info(allowed, "Hello");
@@ -323,7 +323,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = false;
-        _memorySink.IsBlacklist = true;
+        _memorySink.isBlacklist = true;
         _memorySink.AddSource(blocked, true);
 
         Logger.Instance.Info(allowed, "Hello");
@@ -342,7 +342,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = true;
-        _memorySink.IsBlacklist = false;
+        _memorySink.isBlacklist = false;
         _memorySink.AddSource(allowed, true);
 
         Logger.Instance.Info(allowed, "Hello");
@@ -361,7 +361,7 @@ public class LoggerTests
         ResetLogger();
 
         _memorySink.useList = false;
-        _memorySink.IsBlacklist = false;
+        _memorySink.isBlacklist = false;
         _memorySink.AddSource(allowed, true);
 
         Logger.Instance.Info(allowed, "Hello");
