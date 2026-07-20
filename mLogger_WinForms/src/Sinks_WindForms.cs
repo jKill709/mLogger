@@ -14,16 +14,14 @@ namespace mLogger
     public class RichTextBoxSink : LogSinkBase
     {
         private readonly RichTextBox _textBox;
-        private readonly RegexColorProvider _regexColors;
-        private readonly TextColorProvider _textColors;
+        private readonly RegexColorProvider _regexColors = new RegexColorProvider();
+        private readonly TextColorProvider _textColors = new TextColorProvider();
         //private readonly List<(Regex Pattern, Color Color)> _colorPatterns = new();
 
         private readonly ConcurrentQueue<(string Text, Color? ForeColor, Color? BackColor, FontStyle? Style, float? FontSize)> _pending = new();
 
         public RichTextBoxSink(RichTextBox textBox)
         {
-            _regexColors = new RegexColorProvider();
-
             _textBox = textBox ?? throw new ArgumentNullException(nameof(textBox));
 
             _textBox.HandleCreated += (_, _) => FlushPending();
