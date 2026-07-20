@@ -61,10 +61,10 @@ public class LoggerTests
         Assert.Contains("--- Hello ---", sink.Logs[0]);
     }
     [Fact]
-    public void WriteSeperator_ShouldStoreSeperator()
+    public void WriteSeparator_ShouldStoreSeparator()
     {
         var sink = new InMemorySink();
-        sink.WriteSeperator(new LogEntry
+        sink.WriteSeparator(new LogEntry
         {
             Timestamp = DateTime.Now,
             Level = LogLevel.INFO,

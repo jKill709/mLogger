@@ -30,9 +30,10 @@
         {
             MainTBsink_Box = new RichTextBox();
             panel1 = new Panel();
+            LogHeading_Button = new Button();
+            LogEntry_Button = new Button();
             RemoveSource_Button = new Button();
             AddSource_Button = new Button();
-            LogEntry_Button = new Button();
             Message_Label = new Label();
             RandomSource_Button = new Button();
             RandomMessage_Button = new Button();
@@ -63,12 +64,14 @@
             MainTBsink_Box.Name = "MainTBsink_Box";
             MainTBsink_Box.Size = new Size(776, 319);
             MainTBsink_Box.TabIndex = 0;
+            MainTBsink_Box.Text = "";
             // 
             // panel1
             // 
+            panel1.Controls.Add(LogHeading_Button);
+            panel1.Controls.Add(LogEntry_Button);
             panel1.Controls.Add(RemoveSource_Button);
             panel1.Controls.Add(AddSource_Button);
-            panel1.Controls.Add(LogEntry_Button);
             panel1.Controls.Add(Message_Label);
             panel1.Controls.Add(RandomSource_Button);
             panel1.Controls.Add(RandomMessage_Button);
@@ -80,6 +83,30 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(386, 148);
             panel1.TabIndex = 1;
+            // 
+            // LogHeading_Button
+            // 
+            LogHeading_Button.Font = new Font("Segoe UI", 7F);
+            LogHeading_Button.Location = new Point(301, 109);
+            LogHeading_Button.Name = "LogHeading_Button";
+            LogHeading_Button.Size = new Size(82, 28);
+            LogHeading_Button.TabIndex = 10;
+            LogHeading_Button.Text = "Heading";
+            LogHeading_Button.TextAlign = ContentAlignment.TopCenter;
+            LogHeading_Button.UseVisualStyleBackColor = true;
+            LogHeading_Button.Click += LogHeadingButton_Click;
+            // 
+            // LogEntry_Button
+            // 
+            LogEntry_Button.Font = new Font("Segoe UI", 8F);
+            LogEntry_Button.Location = new Point(213, 109);
+            LogEntry_Button.Name = "LogEntry_Button";
+            LogEntry_Button.Size = new Size(82, 28);
+            LogEntry_Button.TabIndex = 8;
+            LogEntry_Button.Text = "Log Entry";
+            LogEntry_Button.TextAlign = ContentAlignment.TopCenter;
+            LogEntry_Button.UseVisualStyleBackColor = true;
+            LogEntry_Button.Click += LogEntry_Button_Click;
             // 
             // RemoveSource_Button
             // 
@@ -102,16 +129,6 @@
             AddSource_Button.Text = "Add Source";
             AddSource_Button.UseVisualStyleBackColor = true;
             AddSource_Button.Click += AddSource_Button_Click;
-            // 
-            // LogEntry_Button
-            // 
-            LogEntry_Button.Location = new Point(212, 109);
-            LogEntry_Button.Name = "LogEntry_Button";
-            LogEntry_Button.Size = new Size(171, 28);
-            LogEntry_Button.TabIndex = 8;
-            LogEntry_Button.Text = "Log Entry";
-            LogEntry_Button.UseVisualStyleBackColor = true;
-            LogEntry_Button.Click += LogEntry_Button_Click;
             // 
             // Message_Label
             // 
@@ -373,5 +390,6 @@
         private Button RichTextWindow_Button;
         private CheckBox Whitelist_Box;
         private CheckBox Blacklist_Box;
+        private Button LogHeading_Button;
     }
 }

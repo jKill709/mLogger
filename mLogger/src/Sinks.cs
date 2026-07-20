@@ -8,7 +8,7 @@ namespace mLogger
     {
         void WriteLine(LogEntry entry);
         void WriteHeading(LogEntry entry);
-        void WriteSeperator(LogEntry entry);
+        void WriteSeparator(LogEntry entry);
         void ResetForTesting();
         void Shutdown();
     }
@@ -82,7 +82,7 @@ namespace mLogger
 
         public abstract void WriteLine(LogEntry entry);
         public abstract void WriteHeading(LogEntry entry);
-        public abstract void WriteSeperator(LogEntry entry);
+        public abstract void WriteSeparator(LogEntry entry);
 
         //public void CopyTo(LogSinkBase destination)
         //{
@@ -154,25 +154,25 @@ namespace mLogger
 
             lock (_lock)
             {
-                Char seperatorChar = '-';
+                Char separatorChar = '-';
                 string line = LogFormatter.FormatOneLineText(entry);
                 string innerPadding = new string(' ', 2);
-                string partialSeperator = new string(seperatorChar, 6);
+                string partialSeparator = new string(separatorChar, 6);
                 string leadingPadding = new string(' ', line.Length - entry.Message.Length);
-                string fullSeperator = new string(seperatorChar, entry.Message.Length + (innerPadding.Length * 2) + (partialSeperator.Length * 2));
+                string fullSeparator = new string(separatorChar, entry.Message.Length + (innerPadding.Length * 2) + (partialSeparator.Length * 2));
                 LogEntry firstLineEntry = new LogEntry { Timestamp = entry.Timestamp,
                                                          Level = entry.Level,
                                                          Source = entry.Source,
-                                                         Message = fullSeperator };
+                                                         Message = fullSeparator };
 
                 NewLogFileIfNeeded();
                 _writer.WriteLine(LogFormatter.FormatOneLineText(firstLineEntry));
-                _writer.WriteLine(leadingPadding + partialSeperator + innerPadding + entry.Message + innerPadding + partialSeperator);
-                _writer.WriteLine(leadingPadding + fullSeperator);
+                _writer.WriteLine(leadingPadding + partialSeparator + innerPadding + entry.Message + innerPadding + partialSeparator);
+                _writer.WriteLine(leadingPadding + fullSeparator);
                 _writer.Flush();
             }
         }
-        public override void WriteSeperator(LogEntry entry)
+        public override void WriteSeparator(LogEntry entry)
         {
             if (!ShouldWrite(entry.Source))
                 return;
@@ -247,25 +247,25 @@ namespace mLogger
             if (!ShouldWrite(entry.Source))
                 return;
 
-            Char seperatorChar = '-';
+            Char separatorChar = '-';
             string line = LogFormatter.FormatOneLineText(entry);
             string innerPadding = new string(' ', 2);
-            string partialSeperator = new string(seperatorChar, 6);
+            string partialSeparator = new string(separatorChar, 6);
             string leadingPadding = new string(' ', line.Length - entry.Message.Length);
-            string fullSeperator = new string(seperatorChar, entry.Message.Length + (innerPadding.Length * 2) + (partialSeperator.Length * 2));
+            string fullSeparator = new string(separatorChar, entry.Message.Length + (innerPadding.Length * 2) + (partialSeparator.Length * 2));
             LogEntry firstLineEntry = new LogEntry
             {
                 Timestamp = entry.Timestamp,
                 Level = entry.Level,
                 Source = entry.Source,
-                Message = fullSeperator
+                Message = fullSeparator
             };
 
             Console.WriteLine(LogFormatter.FormatOneLineText(firstLineEntry));
-            Console.WriteLine(leadingPadding + partialSeperator + innerPadding + entry.Message + innerPadding + partialSeperator);
-            Console.WriteLine(leadingPadding + fullSeperator);
+            Console.WriteLine(leadingPadding + partialSeparator + innerPadding + entry.Message + innerPadding + partialSeparator);
+            Console.WriteLine(leadingPadding + fullSeparator);
         }
-        public override void WriteSeperator(LogEntry entry)
+        public override void WriteSeparator(LogEntry entry)
         {
             if (!ShouldWrite(entry.Source))
                 return;
@@ -318,7 +318,7 @@ namespace mLogger
                 _inMemoryLogs.Add(LogFormatter.FormatOneLineText(headeredEntry)); 
             }
         }
-        public override void WriteSeperator(LogEntry entry)
+        public override void WriteSeparator(LogEntry entry)
         {
             if (!ShouldWrite(entry.Source))
                 return;

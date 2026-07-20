@@ -28,7 +28,7 @@ mLogger_UnitTests/
 	- Info_ShouldSendEntryToSink
 	- WriteLine_ShouldStoreFormattedMessage
 	- WriteHeading_ShouldStoreFormattedMessage
-	- WriteSeperator_ShouldStoreSeperator
+	- WriteSeparator_ShouldStoreSeparator
 	- Log_ShouldUseCorrectLevel
 	- MultipleSinks_ShouldReceiveMessage
 	- RemoveSink_ShouldStopReceivingMessages

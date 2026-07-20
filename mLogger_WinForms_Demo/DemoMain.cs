@@ -107,7 +107,7 @@ namespace mLogger_WinForms_Demo
                 FlashControls(controls);
                 return;
             }
-                        
+
             Color color = sourceColors.GetColor(Source_Box.Text);
             foreach (LogSinkBase sink in _activeSinks)
                 sink.AddSource(Source_Box.Text, false);
@@ -120,7 +120,7 @@ namespace mLogger_WinForms_Demo
                 BackColor = color
             };
             Sources_ListBox.Items.Add(item);
-            
+
         }
         private void RemoveSource()
         {
@@ -219,6 +219,7 @@ namespace mLogger_WinForms_Demo
 
             if (controls.Count > 0)
             {
+                controls.Add(LogEntry_Button);
                 FlashControls(controls);
                 return;
             }
@@ -240,6 +241,46 @@ namespace mLogger_WinForms_Demo
 
 
             logger.Log(level, Source_Box.Text, Message_Box.Text);
+        }
+        private void LogHeadingButton_Click(object sender, EventArgs e)
+        {
+            List<Control> controls = new List<Control>();
+
+            if (string.IsNullOrWhiteSpace(Source_Box.Text))
+                controls.Add(Source_Box);
+            if (string.IsNullOrWhiteSpace(Message_Box.Text))
+                controls.Add(Message_Box);
+            if (!FATAL_Option.Checked && !ERR_Option.Checked && !WARN_Option.Checked && !INFO_Option.Checked && !Debug_Option.Checked)
+                controls.AddRange(new Control[] { FATAL_Option,
+                                                  ERR_Option,
+                                                  WARN_Option,
+                                                  INFO_Option,
+                                                  Debug_Option });
+
+            if (controls.Count > 0)
+            {
+                controls.Add(LogHeading_Button);
+                FlashControls(controls);
+                return;
+            }
+
+
+            LogLevel level;
+            if (FATAL_Option.Checked)
+                level = LogLevel.FATAL;
+            else if (ERR_Option.Checked)
+                level = LogLevel.ERROR;
+            else if (WARN_Option.Checked)
+                level = LogLevel.WARN;
+            else if (INFO_Option.Checked)
+                level = LogLevel.INFO;
+            else if (Debug_Option.Checked)
+                level = LogLevel.DEBUG;
+            else
+                throw new ArgumentNullException(nameof(LogLevel_Box));
+
+
+            logger.LogHeading(level, Source_Box.Text, Message_Box.Text);
         }
         private void ConsoleSink_Button_Click(object sender, EventArgs e)
         {

@@ -142,7 +142,7 @@ namespace mLogger
             AppendText(Message, MessageColor, Color.Empty, FontStyle.Bold, (float?)null);
             AppendText(Environment.NewLine, Color.Empty, Color.Empty, FontStyle.Bold, (float?)null);
         }
-        public override void WriteSeperator(LogEntry entry)
+        public override void WriteSeparator(LogEntry entry)
         {
             if (!ShouldWrite(entry.Source))
                 return;
@@ -317,12 +317,12 @@ namespace mLogger
         }
 
 
-        public override void WriteSeperator(LogEntry entry)
+        public override void WriteSeparator(LogEntry entry)
         {
             if (!ShouldWrite(entry.Source))
                 return;
 
-            _sink.WriteSeperator(entry);
+            _sink.WriteSeparator(entry);
         }
 
 
@@ -347,147 +347,4 @@ namespace mLogger
             _form.Dispose();
         }
     }
-
-    //public class RichTextBoxWindowSink : LogSinkBase
-    //{
-    //    private readonly Form _form;
-    //    private readonly RichTextBox _textBox;
-    //    private readonly RichTextBoxSink _sink;
-
-    //    public RichTextBoxWindowSink(string title = "Logging Output",int width = 800,int height = 600)
-    //    {
-    //        Form? form = null;
-    //        RichTextBox? textBox = null;
-    //        RichTextBoxSink? sink = null;
-
-    //        ManualResetEventSlim initialized = new(false);
-
-    //        Thread uiThread = new Thread(() =>
-    //        {
-    //            form = new Form()
-    //            {
-    //                Text = title,
-    //                Width = width,
-    //                Height = height,
-    //                StartPosition = FormStartPosition.CenterScreen
-    //            };
-
-    //            textBox = new RichTextBox()
-    //            {
-    //                ReadOnly = true,
-    //                Multiline = true,
-    //                ScrollBars = RichTextBoxScrollBars.Both,
-    //                WordWrap = false,
-    //                Dock = DockStyle.Fill
-    //            };
-
-    //            form.Controls.Add(textBox);
-
-    //            form.Load += (_, _) =>
-    //            {
-    //                sink = new RichTextBoxSink(textBox);
-
-    //                initialized.Set();
-    //            };
-
-
-    //            form.FormClosing += (_, e) =>
-    //            {
-    //                e.Cancel = true;
-    //                form.Hide();
-    //            };
-
-    //            initialized.Set();
-
-    //            Application.Run(form);
-    //        });
-
-    //        uiThread.SetApartmentState(ApartmentState.STA);
-    //        uiThread.IsBackground = true;
-    //        uiThread.Start();
-
-    //        initialized.Wait();
-
-    //        _form = form!;
-    //        _textBox = textBox!;
-    //        _sink = sink!;
-    //    }
-
-    //    public void Show()
-    //    {
-    //        if (_form.InvokeRequired)
-    //        {
-    //            _form.BeginInvoke(new Action(() => _form.Show()));
-    //        }
-    //        else
-    //        {
-    //            _form.Show();
-    //        }
-    //    }
-    //    public void Hide()
-    //    {
-    //        if (_form.InvokeRequired)
-    //        {
-    //            _form.BeginInvoke(new Action(() => _form.Hide()));
-    //        }
-    //        else
-    //        {
-    //            _form.Hide();
-    //        }
-    //    }
-
-    //    public override void WriteLine(LogEntry entry)
-    //    {
-    //        if (!ShouldWrite(entry.Source))
-    //            return;
-
-    //        _sink.WriteLine(entry);
-    //    }
-    //    public override void WriteHeading(LogEntry entry)
-    //    {
-    //        if (!ShouldWrite(entry.Source))
-    //            return;
-
-    //        _sink.WriteHeading(entry);
-    //    }
-    //    public override void WriteSeperator(LogEntry entry)
-    //    {
-    //        if (!ShouldWrite(entry.Source))
-    //            return;
-
-    //        _sink.WriteSeperator(entry);
-    //    }
-
-    //    public void AddColorPattern(string pattern, Color color)
-    //    {
-    //        _sink.AddPattern(pattern, color);
-    //        base.AddPattern(pattern);
-    //    }
-    //    public void AddSourceColor(
-    //        string source,
-    //        bool andModules = true,
-    //        Color color = default)
-    //    {
-    //        _sink.AddSource(source, andModules, color);
-    //    }
-
-    //    public override void ResetForTesting()
-    //    {
-    //        _sink.ResetForTesting();
-    //    }
-    //    public override void Shutdown()
-    //    {
-    //        if (_form.InvokeRequired)
-    //        {
-    //            _form.BeginInvoke(new Action(() =>
-    //            {
-    //                _form.Dispose();
-    //            }));
-    //        }
-    //        else
-    //        {
-    //            _form.Dispose();
-    //        }
-    //    }
-    //}
 }
