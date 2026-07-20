@@ -87,11 +87,10 @@ namespace mLogger_WinForms_Demo
             _activeSinks = new List<LogSinkBase>();
 
             _mainTBsink = new RichTextBoxSink(MainTBsink_Box);
-            AddSource("Demo");
+            _mainTBsink.AddSource("Demo");
 
             logger.AddSink(_mainTBsink);
             _activeSinks.Add(_mainTBsink);
-
 
             logger.LogHeading(LogLevel.INFO, "Demo", "Welcome to the mLogger Demo");
             logger.Log(LogLevel.INFO, "Demo", "You may enter log entries, add sources or experiement with various sinks.");

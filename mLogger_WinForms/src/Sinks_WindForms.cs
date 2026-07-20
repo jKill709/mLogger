@@ -13,6 +13,7 @@ namespace mLogger
 {
     public class RichTextBoxSink : LogSinkBase
     {
+        private readonly FixedHashColorProvider _hashColorProvider;
         private readonly RichTextBox _textBox;
         private readonly RegexColorProvider _regexColors;
         private readonly TextColorProvider _textColors;
@@ -26,6 +27,7 @@ namespace mLogger
 
             _textBox.HandleCreated += (_, _) => FlushPending();
 
+            _hashColorProvider = new FixedHashColorProvider();
             _regexColors = new RegexColorProvider();
             _textColors = new TextColorProvider();
         }
@@ -63,6 +65,8 @@ namespace mLogger
         {
             Regex pattern = CreateSourceRegex(source, andModules);
             base.AddPattern(pattern);
+            if (color == default)
+                color = _hashColorProvider.GetColor(source);
             _regexColors.AddPattern(pattern, color);
         }
         public void RemoveSource(string source, bool andModules = true)
@@ -264,14 +268,6 @@ namespace mLogger
                 WordWrap = false,
                 Dock = DockStyle.Fill
             };
-
-            // Dock already handles resizing.
-            // If you prefer Anchor:
-            //
-            // _textBox.Anchor = AnchorStyles.Top |
-            //                   AnchorStyles.Bottom |
-            //                   AnchorStyles.Left |
-            //                   AnchorStyles.Right;
 
             _form.Controls.Add(_textBox);
 
