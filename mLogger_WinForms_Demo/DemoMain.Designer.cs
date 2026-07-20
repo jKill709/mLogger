@@ -64,7 +64,7 @@
             MainTBsink_Box.Name = "MainTBsink_Box";
             MainTBsink_Box.Size = new Size(776, 319);
             MainTBsink_Box.TabIndex = 0;
-            MainTBsink_Box.Text = "";
+            /*MainTBsink_Box.Text = "";*/
             // 
             // panel1
             // 

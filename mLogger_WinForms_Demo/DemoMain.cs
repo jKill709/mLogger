@@ -87,12 +87,15 @@ namespace mLogger_WinForms_Demo
             _activeSinks = new List<LogSinkBase>();
 
             _mainTBsink = new RichTextBoxSink(MainTBsink_Box);
+            AddSource("Demo");
+
             logger.AddSink(_mainTBsink);
             _activeSinks.Add(_mainTBsink);
 
 
             logger.LogHeading(LogLevel.INFO, "Demo", "Welcome to the mLogger Demo");
             logger.Log(LogLevel.INFO, "Demo", "You may enter log entries, add sources or experiement with various sinks.");
+            logger.Log(LogLevel.INFO, "Demo", "All the sinks in this demo are wired together for simplicity, but each sink has it's own regex list, whitelist/blacklist config color associations and can be configure independently.");
         }
 
         private async void AddSource()
@@ -108,20 +111,28 @@ namespace mLogger_WinForms_Demo
                 return;
             }
 
-            Color color = sourceColors.GetColor(Source_Box.Text);
-            foreach (LogSinkBase sink in _activeSinks)
-                sink.AddSource(Source_Box.Text, false);
-
-            Source_Box.Items.Add(Source_Box.Text);
-
-            ListViewItem item = new ListViewItem(Source_Box.Text)
-            {
-                ForeColor = textColors.GetColor(color),
-                BackColor = color
-            };
-            Sources_ListBox.Items.Add(item);
-
+            AddSource(Source_Box.Text);
+            logger.Log(LogLevel.INFO, "Demo", $"Add new source: {Source_Box.Text}");
         }
+        private async void AddSource(string source)
+        {
+
+            Color color = sourceColors.GetColor(source);
+            foreach (LogSinkBase sink in _activeSinks)
+                sink.AddSource(source, false);
+
+            if (source != "Demo")
+            {
+                Source_Box.Items.Add(source);
+
+                ListViewItem item = new ListViewItem(source)
+                {
+                    ForeColor = textColors.GetColor(color),
+                    BackColor = color
+                };
+                Sources_ListBox.Items.Add(item);
+            }
+        }        
         private void RemoveSource()
         {
             List<Control> controls = new List<Control>();
@@ -150,6 +161,8 @@ namespace mLogger_WinForms_Demo
                     break;
                 }
             }
+
+            logger.Log(LogLevel.INFO, "Demo", $"Removed source: {Source_Box.Text}");
 
             Source_Box.Text = "";
         }
@@ -296,6 +309,8 @@ namespace mLogger_WinForms_Demo
                 logger.AddSink(_consoleSink);
                 _activeSinks.Add(_mainTBsink);
             }
+
+            logger.Log(LogLevel.INFO, "Demo", "ConsoleSink Opened.  Closing the console will exit the application");
         }
 
         internal static class ConsoleManager
@@ -318,7 +333,7 @@ namespace mLogger_WinForms_Demo
                 logger.AddSink(_memorySink);
                 _activeSinks.Add(_mainTBsink);
             }
-            MessageBox.Show("InMemborySink running.  Use debug features to inspect contents.");
+            logger.Log(LogLevel.INFO, "Demo", "InMemborySink is running.  Use debug features to inspect contents.");
         }
         private void TextFileSink_Button_Click(object sender, EventArgs e)
         {
@@ -331,7 +346,7 @@ namespace mLogger_WinForms_Demo
                 _textFileAllocated = true;
             }
 
-            MessageBox.Show("Saving log to file: " + _textFileSink.FilePath);
+            logger.Log(LogLevel.INFO, "Demo", "TextFileSink is active.  Saving log to file: " + _textFileSink.FilePath);
         }
         private void RichTextWindow_Button_Click(object sender, EventArgs e)
         {
@@ -344,6 +359,8 @@ namespace mLogger_WinForms_Demo
 
                 _richTextBoxWindowAllocated = true;
             }
+
+            logger.Log(LogLevel.INFO, "Demo", "RichTextBoxWindowSink opened");
         }
 
         private void Whitelist_Box_CheckedChanged(object sender, EventArgs e)
@@ -351,6 +368,7 @@ namespace mLogger_WinForms_Demo
             if (Whitelist_Box.Checked)
             {
                 Blacklist_Box.Checked = false;
+                logger.Log(LogLevel.INFO, "Demo", "Whitelist is active.  Only sources in the list will be sent to sinks.");
 
                 foreach (LogSinkBase sink in _activeSinks)
                 {
@@ -360,30 +378,37 @@ namespace mLogger_WinForms_Demo
             }
             else
             {
+                logger.Log(LogLevel.INFO, "Demo", "No list is active.  All sources will be sent to sinks.");
+
                 foreach (LogSinkBase sink in _activeSinks)
                 {
                     sink.useList = false;
                 }
             }
         }
-
         private void Blacklist_Box_CheckedChanged(object sender, EventArgs e)
         {
             if (Blacklist_Box.Checked)
             {
                 Whitelist_Box.Checked = false;
+                logger.Log(LogLevel.INFO, "Demo", "Blacklist is active.  Sources in the list will not be sent to sinks.");
 
                 foreach (LogSinkBase sink in _activeSinks)
                 {
+                    sink.RemoveSource("Demo");  // So demo messages still get through
+                    
                     sink.useList = true;
                     sink.isBlacklist = true;
                 }
             }
             else
             {
+                logger.Log(LogLevel.INFO, "Demo", "No list is  again.  All sources will be sent to sinks.");
+             
                 foreach (LogSinkBase sink in _activeSinks)
                 {
                     sink.useList = false;
+                    sink.AddSource("Demo");  // So demo messages get through again
                 }
             }
         }
