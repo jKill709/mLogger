@@ -118,7 +118,16 @@ namespace mLogger_WinForms_Demo
 
             Color color = sourceColors.GetColor(source);
             foreach (LogSinkBase sink in _activeSinks)
-                sink.AddSource(source, false);
+            {
+                if (sink is RichTextBoxSink cs)
+                {
+                    cs.AddSource(source, false, sourceColors.GetColor(source));
+                }
+                else
+                {
+                    sink.AddSource(source, false);
+                }
+            }
 
             if (source != "Demo")
             {
