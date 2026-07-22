@@ -46,6 +46,7 @@ namespace mLogger
             {
                 _regexColors = new RegexColorProvider();
             }
+            _hashColorProvider = new FixedHashColorProvider();
             _textColors = new TextColorProvider();
         }
 
@@ -264,10 +265,7 @@ namespace mLogger
         private readonly RichTextBox _textBox;
         private readonly RichTextBoxSink _sink;
 
-        public RichTextBoxWindowSink(
-            string title = "Logging Output",
-            int width = 800,
-            int height = 600)
+        public RichTextBoxWindowSink(string title = "Logging Output", int width = 800, int height = 600)
         {
             _form = new Form()
             {
@@ -298,7 +296,37 @@ namespace mLogger
 
             _sink = new RichTextBoxSink(_textBox);
         }
+        public RichTextBoxWindowSink(RichTextBoxSink previousSink, string title = "Logging Output", int width = 800, int height = 600)
+        {
+            _form = new Form()
+            {
+                Text = title,
+                Width = width,
+                Height = height,
+                StartPosition = FormStartPosition.CenterScreen
+            };
 
+            _textBox = new RichTextBox()
+            {
+                ReadOnly = true,
+                Multiline = true,
+                ScrollBars = RichTextBoxScrollBars.Both,
+                WordWrap = false,
+                Dock = DockStyle.Fill
+            };
+
+            _form.Controls.Add(_textBox);
+
+            // Do not allow closing the logging window
+            // to terminate the application.
+            _form.FormClosing += (_, e) =>
+            {
+                e.Cancel = true;
+                _form.Hide();
+            };
+
+            _sink = new RichTextBoxSink(previousSink, _textBox);
+        }
 
         public void Show()
         {

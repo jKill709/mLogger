@@ -364,7 +364,7 @@ namespace mLogger_WinForms_Demo
         {
             if (!_richTextBoxWindowAllocated)
             {
-                _richTextBoxWindowSink = new RichTextBoxWindowSink();
+                _richTextBoxWindowSink = new RichTextBoxWindowSink(_mainTBsink, "RichTextBoxWindowSink Demo");
                 logger.AddSink(_richTextBoxWindowSink);
                 _activeSinks.Add(_mainTBsink);
                 _richTextBoxWindowSink.Show();
