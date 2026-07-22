@@ -111,10 +111,13 @@ namespace mLogger_WinForms_Demo
             }
 
             AddSource(Source_Box.Text);
-            logger.Log(LogLevel.INFO, "Demo", $"Add new source: {Source_Box.Text}");
         }
         private async void AddSource(string source)
         {
+            // If the new source is already in the list (Sources_ListBox.Items) then return
+            if (Sources_ListBox.Items.Cast<ListViewItem>().Any(item => item.Text.Equals(source, StringComparison.Ordinal)))
+                return;
+
             Color color = sourceColors.GetColor(source);
             foreach (LogSinkBase sink in _activeSinks)
             {
@@ -138,8 +141,10 @@ namespace mLogger_WinForms_Demo
                     BackColor = color
                 };
                 Sources_ListBox.Items.Add(item);
+
+                logger.Log(LogLevel.INFO, "Demo", $"Add new source: {Source_Box.Text}");
             }
-        }        
+        }
         private void RemoveSource()
         {
             List<Control> controls = new List<Control>();
