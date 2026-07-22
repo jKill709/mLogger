@@ -59,6 +59,7 @@ namespace mLogger
         {
             string timestamp = FormatTimestamp(entry);
             string levelName = FormatLogLevel(entry);
+            string message = new string((entry.Message ?? "null").Select(c => char.IsControl(c) && c != '\t' ? ' ' : c).ToArray());
 
             string returnValue = string.Empty;
 
@@ -82,8 +83,9 @@ namespace mLogger
             {
                 if (returnValue.Length > 0)
                     returnValue += " ";
-                returnValue += $" {entry.Message ?? "null"}";
+                returnValue += $" {message ?? "null"}";
             }
+
             return returnValue;
         }
     }

@@ -208,7 +208,6 @@ namespace mLogger
         public void AppendLine(string line)
         {
             AppendText(line + Environment.NewLine);
-
             _textBox.ScrollToCaret();
         }
         private void FlushPending()
