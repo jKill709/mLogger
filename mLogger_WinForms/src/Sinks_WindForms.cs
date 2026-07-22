@@ -11,7 +11,7 @@ using static System.Windows.Forms.LinkLabel;
 
 namespace mLogger
 {
-    public class RichTextBoxSink : LogSinkBase
+    public class RichTextBoxSink : LogSinkBase, IColoredLogSink
     {
         private readonly FixedHashColorProvider _hashColorProvider;
         private readonly RichTextBox _textBox;
@@ -179,7 +179,7 @@ namespace mLogger
 
             if (_textBox.InvokeRequired)
             {
-                _textBox.BeginInvoke(() => AppendLine(line));
+                _textBox.BeginInvoke(() => AppendText(line, foreColor, backColor, fontStyle, fontSize));
                 return;
             }
 

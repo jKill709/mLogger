@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace mLogger
@@ -122,6 +123,26 @@ namespace mLogger
                 {
                     sink.Shutdown();
                 }
+            }
+        }
+        public void AddPattern(Regex pattern, Color color = default, bool andModules = true)
+        {
+            foreach (LogSinkBase sink in _sinks)
+            {
+                if (sink is IColoredLogSink colored)
+                    colored.AddPattern(pattern, color);
+                else
+                    sink.AddPattern(pattern);
+            }
+        }
+        public void AddSource(string source, Color color = default, bool andModules = true)
+        {
+            foreach (var sink in _sinks)
+            {
+                if (sink is IColoredLogSink colored)
+                    colored.AddSource(source, color, andModules);
+                else
+                    sink.AddSource(source, andModules);
             }
         }
 

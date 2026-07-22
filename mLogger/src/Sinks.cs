@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -11,6 +12,13 @@ namespace mLogger
         void WriteSeparator(LogEntry entry);
         void ResetForTesting();
         void Shutdown();
+    }
+    public interface IColoredLogSink
+    {
+        void AddPattern(Regex pattern, Color color = default);
+        void RemovePattern(Regex pattern);
+        void AddSource(string source, Color color = default, bool andModules = true);
+        void RemoveSource(string source, bool andModules = true);
     }
     public abstract class LogSinkBase : ILogSink
     {
@@ -90,22 +98,6 @@ namespace mLogger
         public abstract void WriteLine(LogEntry entry);
         public abstract void WriteHeading(LogEntry entry);
         public abstract void WriteSeparator(LogEntry entry);
-
-        //public void CopyTo(LogSinkBase destination)
-        //{
-        //    CopyBase(destination);
-
-        //    if (destination.GetType() == GetType())
-        //        CopyDerived(destination);
-        //}
-        //protected virtual void CopyBase(LogSinkBase destination)
-        //{
-        //    destination.isBlacklist = isBlacklist;
-        //    destination.useList = useList;
-        //}
-        //protected virtual void CopyDerived(LogSinkBase destination)
-        //{
-        //}
         public abstract void ResetForTesting();
         public abstract void Shutdown();
     }
