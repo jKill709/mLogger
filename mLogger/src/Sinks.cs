@@ -28,11 +28,18 @@ namespace mLogger
         }
         public void AddPattern(Regex pattern)
         {
+            ArgumentNullException.ThrowIfNull(pattern);
+
+            if (_patterns.Any(r => r.ToString() == pattern.ToString() && r.Options == pattern.Options))
+            {
+                return;
+            }
+
             _patterns.Add(pattern);
         }
         public void AddPattern(string pattern)
         {
-            _patterns.Add(new Regex(pattern, RegexOptions.Compiled));
+            AddPattern(new Regex(pattern, RegexOptions.Compiled));
         }
         public void AddSource(string source, bool andModules = true)
         {
