@@ -49,27 +49,44 @@ namespace mLogger
             _textColors = new TextColorProvider();
         }
 
-        public void AddPattern(string pattern, Color color)
+        public new void AddPattern(Regex pattern)
         {
-            _regexColors.AddPattern(new Regex(pattern, RegexOptions.Compiled), color);
+            AddPattern(pattern, _hashColorProvider.GetColor(pattern.ToString()));
+        }
+        public void AddPattern(Regex pattern, Color color)
+        {
+            _regexColors.AddPattern(pattern, color);
 
             base.AddPattern(pattern);
         }
-        public void RemovePattern(string pattern)
+        public new void AddPattern(string pattern)
+        {
+            AddPattern(new Regex(pattern, RegexOptions.Compiled));
+        }
+        public void AddPattern(string pattern, Color color)
+        {
+            AddPattern(new Regex(pattern, RegexOptions.Compiled), color);
+        }
+        public new void RemovePattern(string pattern)
         {
             _regexColors.RemovePattern(new Regex(pattern, RegexOptions.Compiled));
 
             base.RemovePattern(pattern);
         }
-        public void AddSource(string source, bool andModules = true, Color color = default)
+        public new void AddSource(string source, bool andModules = true)
+        {
+            Color color = _hashColorProvider.GetColor(source);
+            AddSource(source, color, andModules);
+        }
+        public void AddSource(string source, Color color, bool andModules = true)
         {
             Regex pattern = CreateSourceRegex(source, andModules);
             base.AddPattern(pattern);
-            if (color == default)
-                color = _hashColorProvider.GetColor(source);
+            //if (color == default)
+            //    color = _hashColorProvider.GetColor(source);
             _regexColors.AddPattern(pattern, color);
         }
-        public void RemoveSource(string source, bool andModules = true)
+        public new void RemoveSource(string source, bool andModules = true)
         {
             Regex pattern = CreateSourceRegex(source, andModules);
             base.RemovePattern(pattern);

@@ -115,13 +115,12 @@ namespace mLogger_WinForms_Demo
         }
         private async void AddSource(string source)
         {
-
             Color color = sourceColors.GetColor(source);
             foreach (LogSinkBase sink in _activeSinks)
             {
                 if (sink is RichTextBoxSink cs)
                 {
-                    cs.AddSource(source, false, sourceColors.GetColor(source));
+                    cs.AddSource(source, false);
                 }
                 else
                 {
