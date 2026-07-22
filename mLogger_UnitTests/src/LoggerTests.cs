@@ -192,7 +192,7 @@ public class LoggerTests
         _memorySink.isBlacklist = true;
         _memorySink.AddSource("Blocked", false);
 
-        Logger.Instance.Info("Allowed", "Hello");
+        Logger.Instance.Info("Blocked_SubModule", "Hello");
 
         Assert.Single(_memorySink.Logs);
     }
@@ -220,7 +220,7 @@ public class LoggerTests
         _memorySink.isBlacklist = false;
         _memorySink.AddSource("Allowed", false);
 
-        Logger.Instance.Info("Blocked", "Hello");
+        Logger.Instance.Info("Allowed_Submodule", "Hello");
 
         Assert.Empty(_memorySink.Logs);
     }
@@ -296,7 +296,7 @@ public class LoggerTests
     }
 
     [Fact]
-    public void useList_ShouldEnableBlackListWhenTrue()
+    public void UseList_ShouldEnableBlackListWhenTrue()
     {
         string allowed = "Allowed";
         string blocked = "Blocked";
@@ -315,7 +315,7 @@ public class LoggerTests
     }
 
     [Fact]
-    public void useList_ShouldDisableBlackListWhenFalse()
+    public void UseList_ShouldDisableBlackListWhenFalse()
     {
         string allowed = "Allowed";
         string blocked = "Blocked";
@@ -334,7 +334,7 @@ public class LoggerTests
     }
 
     [Fact]
-    public void useList_ShouldEnableWhitelistWhenTrue()
+    public void UseList_ShouldEnableWhitelistWhenTrue()
     {
         string allowed = "Allowed";
         string blocked = "Blocked";
@@ -353,7 +353,7 @@ public class LoggerTests
     }
 
     [Fact]
-    public void useList_ShouldDisableWhitelistWhenFalse()
+    public void UseList_ShouldDisableWhitelistWhenFalse()
     {
         string allowed = "Allowed";
         string blocked = "Blocked";
